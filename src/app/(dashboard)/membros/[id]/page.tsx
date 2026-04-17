@@ -8,7 +8,7 @@ import { MemberFormData } from "@/lib/validations/member"
 import { toast } from "sonner"
 import Link from "next/link"
 import { ChevronLeft, Trash2 } from "lucide-react"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -90,10 +90,8 @@ export default function EditarMembroPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
         <AlertDialog>
-          <AlertDialogTrigger>
-            <Button variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive hover:text-white">
-              <Trash2 className="h-4 w-4 mr-1" /> Inativar
-            </Button>
+          <AlertDialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "text-destructive border-destructive hover:bg-destructive hover:text-white")}>
+            <Trash2 className="h-4 w-4 mr-1" /> Inativar
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
