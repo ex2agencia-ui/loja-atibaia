@@ -1,0 +1,160 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  VIEWER
+}
+
+// ─── Members ──────────────────────────────────────────────────────────────────
+
+model Member {
+  id                String         @id @default(cuid())
+  cim               String         @unique
+  situacao          MemberSituacao @default(ATIVO)
+  nome              String
+  dataNascimento    DateTime?
+  posicao           Posicao
+  dataIniciacao     DateTime?
+  dataElevacao      DateTime?
+  dataExaltacao     DateTime?
+  dataInstalacao    DateTime?
+  dataRegulFiliacao DateTime?
+
+  rua         String?
+  numero      String?
+  complemento String?
+  bairro      String?
+  cep         String?
+  cidade      String?
+
+  telefone      String?
+  isWhatsapp    Boolean @default(false)
+  email         String?
+  ocupacao      String?
+  notasOcupacao String? @db.Text
+
+  conjuge           String?
+  nascimentoConjuge DateTime?
+  dataCasamento     String?
+
+  filhos    Filho[]
+  presencas Presenca[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([situacao])
+  @@index([posicao])
+  @@map("members")
+}
+
+model Filho {
+  id             String    @id @default(cuid())
+  memberId       String
+  nome           String
+  dataNascimento DateTime?
+  member         Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("filhos")
+}
+
+enum MemberSituacao {
+  ATIVO
+  INATIVO
+}
+
+enum Posicao {
+  MI
+  CM
+  MM
+  AM
+}
+
+// ─── Sessions & Attendance ────────────────────────────────────────────────────
+
+model LojaSession {
+  id        String      @id @default(cuid())
+  data      DateTime
+  descricao String?
+  tipo      SessionTipo @default(ORDINARIA)
+  fotoUrl   String?
+  fotoKey   String?
+  presencas Presenca[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([data])
+  @@map("loja_sessions")
+}
+
+model Presenca {
+  id         String         @id @default(cuid())
+  memberId   String
+  sessionId  String
+  status     PresencaStatus @default(F)
+  observacao String?
+  member     Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  session    LojaSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([memberId, sessionId])
+  @@index([memberId])
+  @@index([sessionId])
+  @@map("presencas")
+}
+
+enum SessionTipo {
+  ORDINARIA
+  MAGNA
+  ESPECIAL
+}
+
+enum PresencaStatus {
+  NV
+  K
+  AB
+  SU
+  F
+  FM
+  FR
+  BAN
+  REP
+  IN
+  IND
+  IP
+  EL
+  EX
+  MI
+  MM
+  CM
+  AM
+  P
+  REG
+  SM
+  ZERO
+}
