@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 
@@ -17,6 +16,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = loginSchema.safeParse(credentials)
         if (!parsed.success) return null
 
+        // Dynamic import keeps Prisma out of the Edge/proxy bundle
+        const { prisma } = await import("./prisma")
         const user = await prisma.user.findUnique({
           where: { email: parsed.data.email },
         })
