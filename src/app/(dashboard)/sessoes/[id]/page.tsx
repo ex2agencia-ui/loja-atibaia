@@ -87,10 +87,8 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
           </div>
         </div>
         <AlertDialog>
-          <AlertDialogTrigger>
-            <Button variant="outline" size="sm" className="text-destructive border-destructive">
-              <Trash2 className="h-4 w-4" />
-            </Button>
+          <AlertDialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "text-destructive border-destructive")}>
+            <Trash2 className="h-4 w-4" />
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
