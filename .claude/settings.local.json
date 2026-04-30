@@ -48,7 +48,22 @@
       "Bash(curl -s http://localhost:3001/api/test)",
       "Bash(curl -s http://localhost:3001/api/auth/session)",
       "Bash(curl -s http://localhost:3001/api/auth/providers)",
-      "Bash(curl -s -c /tmp/sess.txt -b /tmp/sess.txt http://localhost:3001/ -L)"
+      "Bash(curl -s -c /tmp/sess.txt -b /tmp/sess.txt http://localhost:3001/ -L)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix: add fallback URL in prisma.config.ts to allow generate without env vars *)",
+      "Bash(git push *)",
+      "Bash(npx vercel *)",
+      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://loja-atibaia-6ch08wdzg-creative-data-projects.vercel.app/login\")",
+      "Bash(curl -s \"https://loja-atibaia-6ch08wdzg-creative-data-projects.vercel.app/login\")",
+      "mcp__claude_ai_Vercel__get_project",
+      "Bash(npm show *)",
+      "mcp__claude_ai_Vercel__get_runtime_logs",
+      "mcp__claude_ai_Vercel__get_deployment_build_logs",
+      "Bash(curl -sv \"https://loja-atibaia-9cnny1q4u-creative-data-projects.vercel.app/login\")",
+      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://loja-atibaia-kvl0qj0h1-creative-data-projects.vercel.app/login\")",
+      "mcp__claude_ai_Vercel__search_vercel_documentation",
+      "Bash(npm uninstall *)",
+      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://loja-atibaia-l10dcw02r-creative-data-projects.vercel.app/login\")"
     ]
   }
 }

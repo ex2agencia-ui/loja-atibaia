@@ -5,9 +5,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AttendanceTable } from "@/components/sessoes/attendance-table"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import Link from "next/link"
-import { ChevronLeft, Trash2, Camera, X } from "lucide-react"
+import { ChevronLeft, Trash2, Camera, X, Pencil, Check } from "lucide-react"
 import { formatarData } from "@/lib/utils/format"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -19,6 +21,7 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 const TIPO_LABEL: Record<string, string> = { ORDINARIA: "Ordinária", MAGNA: "Magna", ESPECIAL: "Especial" }
+const TIPOS = ["ORDINARIA", "MAGNA", "ESPECIAL"] as const
 
 export default function SessaoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -26,6 +29,9 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
   const qc = useQueryClient()
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploadingFoto, setUploadingFoto] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editData, setEditData] = useState({ data: "", tipo: "", descricao: "" })
+  const [saving, setSaving] = useState(false)
 
   const { data: session, isLoading: loadingSession } = useQuery({
     queryKey: ["session", id],
@@ -36,6 +42,31 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
     queryKey: ["presencas", id],
     queryFn: () => fetch(`/api/sessoes/${id}/presenca`).then((r) => r.json()),
   })
+
+  function handleStartEdit() {
+    const isoDate = session?.data ? session.data.substring(0, 10) : ""
+    setEditData({ data: isoDate, tipo: session?.tipo ?? "ORDINARIA", descricao: session?.descricao ?? "" })
+    setEditing(true)
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/sessoes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData),
+      })
+      if (!res.ok) throw new Error()
+      await qc.invalidateQueries({ queryKey: ["session", id] })
+      toast.success("Sessão atualizada")
+      setEditing(false)
+    } catch {
+      toast.error("Erro ao salvar")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   async function handleDelete() {
     await fetch(`/api/sessoes/${id}`, { method: "DELETE" })
@@ -78,29 +109,75 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
           <Link href="/sessoes" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
             <ChevronLeft className="h-4 w-4" />
           </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight">{formatarData(session?.data)}</h1>
-              <Badge variant="outline">{TIPO_LABEL[session?.tipo]}</Badge>
+
+          {editing ? (
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Data</Label>
+                <Input
+                  type="date"
+                  value={editData.data}
+                  onChange={(e) => setEditData((p) => ({ ...p, data: e.target.value }))}
+                  className="w-36"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Tipo</Label>
+                <select
+                  value={editData.tipo}
+                  onChange={(e) => setEditData((p) => ({ ...p, tipo: e.target.value }))}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {TIPOS.map((t) => <option key={t} value={t}>{TIPO_LABEL[t]}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Descrição</Label>
+                <Input
+                  value={editData.descricao}
+                  onChange={(e) => setEditData((p) => ({ ...p, descricao: e.target.value }))}
+                  placeholder="Opcional"
+                  className="w-48"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleSave} disabled={saving}>
+                  <Check className="h-4 w-4 mr-1" />{saving ? "Salvando…" : "Salvar"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>Cancelar</Button>
+              </div>
             </div>
-            {session?.descricao && <p className="text-sm text-muted-foreground">{session.descricao}</p>}
-          </div>
+          ) : (
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold tracking-tight">{formatarData(session?.data)}</h1>
+                <Badge variant="outline">{TIPO_LABEL[session?.tipo]}</Badge>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleStartEdit}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              {session?.descricao && <p className="text-sm text-muted-foreground">{session.descricao}</p>}
+            </div>
+          )}
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "text-destructive border-destructive")}>
-            <Trash2 className="h-4 w-4" />
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir sessão?</AlertDialogTitle>
-              <AlertDialogDescription>Todos os registros de presença serão perdidos.</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive">Excluir</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+
+        {!editing && (
+          <AlertDialog>
+            <AlertDialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "text-destructive border-destructive")}>
+              <Trash2 className="h-4 w-4" />
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir sessão?</AlertDialogTitle>
+                <AlertDialogDescription>Todos os registros de presença serão perdidos.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive">Excluir</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
 
       <div className="flex items-center gap-3">
