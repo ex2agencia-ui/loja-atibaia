@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Shield } from "lucide-react"
+import Image from "next/image"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -37,9 +37,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="bg-amber-100 p-4 rounded-full">
-              <Shield className="h-10 w-10 text-amber-700" />
-            </div>
+            <Image src="/logo.png" alt="Logo Loja Itapetininga" width={100} height={100} className="rounded-full" />
           </div>
           <div>
             <CardTitle className="text-2xl">Loja Itapetininga</CardTitle>

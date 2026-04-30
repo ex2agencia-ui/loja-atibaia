@@ -2,6 +2,7 @@ import { Sidebar } from "@/components/layout/sidebar"
 import { MobileNav } from "@/components/layout/mobile-nav"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
+import { NavigationLoader } from "@/components/layout/navigation-loader"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
@@ -11,6 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex flex-col h-full">
+      <NavigationLoader />
       <Header user={{ name: session.user?.name, email: session.user?.email }} vercelUrl={process.env.VERCEL_URL} />
       <div className="flex flex-1 min-h-0">
         <Sidebar />

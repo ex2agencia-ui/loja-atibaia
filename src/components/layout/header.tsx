@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
-import { Shield, User, LogOut, ExternalLink } from "lucide-react"
+import { User, LogOut, ExternalLink } from "lucide-react"
+import Image from "next/image"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,8 +32,8 @@ export function Header({ user }: Props) {
   return (
     <header className="h-14 bg-black border-b border-neutral-800 flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
       <Link href="/" className="flex items-center gap-2.5">
-        <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-          <Shield className="h-4 w-4 text-white" />
+        <div className="h-9 w-9 rounded-full overflow-hidden shrink-0 bg-white/10">
+          <Image src="/logo.png" alt="Logo" width={36} height={36} className="object-cover w-full h-full" />
         </div>
         <div className="leading-tight">
           <div className="font-semibold text-sm text-white">Loja Itapetininga</div>
