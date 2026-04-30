@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       notasOcupacao: row.notasOcupacao || null,
       conjuge: row.conjuge || null,
       nascimentoConjuge: toDate(row.nascimentoConjuge),
-      dataCasamento: toDate(row.dataCasamento),
+      dataCasamento: row.dataCasamento || null,
     }
 
     try {
