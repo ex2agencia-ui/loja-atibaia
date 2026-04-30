@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import Link from "next/link"
 import { ChevronLeft, Trash2, Camera, X, Pencil, Check } from "lucide-react"
@@ -32,6 +33,9 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
   const [editing, setEditing] = useState(false)
   const [editData, setEditData] = useState({ data: "", tipo: "", descricao: "" })
   const [saving, setSaving] = useState(false)
+  const [editingDesc, setEditingDesc] = useState(false)
+  const [descText, setDescText] = useState("")
+  const [savingDesc, setSavingDesc] = useState(false)
 
   const { data: session, isLoading: loadingSession } = useQuery({
     queryKey: ["session", id],
@@ -65,6 +69,25 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
       toast.error("Erro ao salvar")
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleSaveDesc() {
+    setSavingDesc(true)
+    try {
+      const res = await fetch(`/api/sessoes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: session.data.substring(0, 10), tipo: session.tipo, descricao: descText }),
+      })
+      if (!res.ok) throw new Error()
+      await qc.invalidateQueries({ queryKey: ["session", id] })
+      toast.success("Descritivo salvo")
+      setEditingDesc(false)
+    } catch {
+      toast.error("Erro ao salvar")
+    } finally {
+      setSavingDesc(false)
     }
   }
 
@@ -131,15 +154,6 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
                   {TIPOS.map((t) => <option key={t} value={t}>{TIPO_LABEL[t]}</option>)}
                 </select>
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Descrição</Label>
-                <Input
-                  value={editData.descricao}
-                  onChange={(e) => setEditData((p) => ({ ...p, descricao: e.target.value }))}
-                  placeholder="Opcional"
-                  className="w-48"
-                />
-              </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleSave} disabled={saving}>
                   <Check className="h-4 w-4 mr-1" />{saving ? "Salvando…" : "Salvar"}
@@ -196,6 +210,38 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
             <Camera className="h-4 w-4 mr-2" />
             {uploadingFoto ? "Enviando..." : "Foto do Livro"}
           </Button>
+        )}
+      </div>
+
+      <div className="border rounded-lg p-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Descritivo da Sessão</span>
+          {!editingDesc && (
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { setDescText(session?.descricao ?? ""); setEditingDesc(true) }}>
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+        {editingDesc ? (
+          <div className="space-y-2">
+            <Textarea
+              value={descText}
+              onChange={(e) => setDescText(e.target.value)}
+              placeholder="Descreva o que ocorreu nesta sessão..."
+              rows={5}
+              className="resize-none"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button size="sm" variant="ghost" onClick={() => setEditingDesc(false)}>Cancelar</Button>
+              <Button size="sm" onClick={handleSaveDesc} disabled={savingDesc}>
+                <Check className="h-4 w-4 mr-1" />{savingDesc ? "Salvando…" : "Salvar"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            {session?.descricao || <span className="italic">Nenhum descritivo registrado.</span>}
+          </p>
         )}
       </div>
 

@@ -152,7 +152,7 @@ export default async function DashboardPage() {
 
       {/* 3. Calculadora + Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        <Card style={{ backgroundColor: "#cadcf1" }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Calculadora de Quórum</CardTitle>
           </CardHeader>
