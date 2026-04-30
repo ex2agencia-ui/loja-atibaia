@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { MobileNav } from "@/components/layout/mobile-nav"
 import { Header } from "@/components/layout/header"
+import { Footer } from "@/components/layout/footer"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
@@ -19,6 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </main>
       </div>
+      <Footer />
       <MobileNav />
     </div>
   )

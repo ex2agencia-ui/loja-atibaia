@@ -29,23 +29,23 @@ export function Header({ user }: Props) {
   const router = useRouter()
 
   return (
-    <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
+    <header className="h-14 bg-[#597ea9] border-b border-[#4a6d96] flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
       <Link href="/" className="flex items-center gap-2.5">
-        <div className="h-8 w-8 rounded-lg bg-amber-500 flex items-center justify-center shrink-0">
+        <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
           <Shield className="h-4 w-4 text-white" />
         </div>
         <div className="leading-tight">
-          <div className="font-semibold text-sm text-slate-900">Loja Itapetininga</div>
-          <div className="text-xs text-slate-500 hidden sm:block">Gestão Maçônica</div>
+          <div className="font-semibold text-sm text-white">Loja Itapetininga</div>
+          <div className="text-xs text-white/70 hidden sm:block">Gestão Maçônica</div>
         </div>
       </Link>
 
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors outline-none cursor-pointer">
-          <div className="h-7 w-7 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-semibold shrink-0">
+        <DropdownMenuTrigger className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-white/20 transition-colors outline-none cursor-pointer">
+          <div className="h-7 w-7 rounded-full bg-white text-[#597ea9] flex items-center justify-center text-xs font-semibold shrink-0">
             {getInitials(user.name, user.email)}
           </div>
-          <span className="text-sm text-slate-700 hidden sm:block max-w-[160px] truncate">
+          <span className="text-sm text-white hidden sm:block max-w-[160px] truncate">
             {user.name ?? user.email}
           </span>
         </DropdownMenuTrigger>
