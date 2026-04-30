@@ -4,6 +4,7 @@ import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { Providers } from "@/components/providers"
 import Script from "next/script"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Toaster richColors position="top-right" />
         </Providers>
+        <Analytics />
         <Script id="hide-next-logo" strategy="afterInteractive">{`
           (function () {
             function tryHide() {
