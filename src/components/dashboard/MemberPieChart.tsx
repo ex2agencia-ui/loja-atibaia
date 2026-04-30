@@ -1,5 +1,4 @@
 "use client"
-
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
 type Props = {
@@ -10,9 +9,9 @@ type Props = {
 }
 
 const SLICES = [
-  { key: "regulares", label: "Regulares", color: "#22c55e" },
-  { key: "negativos", label: "Negativos", color: "#ef4444" },
-  { key: "inativos", label: "Inativos", color: "#94a3b8" },
+  { key: "Regulares", label: "Regulares", color: "#22c55e" },
+  { key: "Negativos", label: "Negativos", color: "#ef4444" },
+  { key: "Inativos", label: "Inativos", color: "#94a3b8" },
 ]
 
 export function MemberPieChart({ ativos, negativos, inativos, total }: Props) {
@@ -38,11 +37,11 @@ export function MemberPieChart({ ativos, negativos, inativos, total }: Props) {
             labelLine={false}
           >
             {data.map((entry, i) => {
-              const slice = SLICES.find((s) => s.name === entry.name)
+              const slice = SLICES.find((s) => s.key === entry.name)
               return <Cell key={i} fill={slice?.color ?? "#94a3b8"} />
             })}
           </Pie>
-          <Tooltip formatter={(v: number) => [`${v} membros`]} />
+          <Tooltip formatter={(value) => [`${value ?? 0} membros`]} />
           <Legend iconType="circle" iconSize={8} />
         </PieChart>
       </ResponsiveContainer>
