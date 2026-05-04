@@ -37,10 +37,10 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <Image src="/logo.png" alt="Logo Loja Itapetininga" width={100} height={100} className="rounded-full" />
+            <Image src="/logo.png" alt="Logo Loja Itapetinga" width={100} height={100} className="rounded-full" />
           </div>
           <div>
-            <CardTitle className="text-2xl">Loja Itapetininga</CardTitle>
+            <CardTitle className="text-2xl">Loja Itapetinga</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">Sistema de Gestão Maçônica</p>
           </div>
         </CardHeader>

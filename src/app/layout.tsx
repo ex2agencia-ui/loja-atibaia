@@ -9,8 +9,8 @@ import { Analytics } from "@vercel/analytics/next"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "Loja Maçônica Itapetininga",
-  description: "Sistema de Gestão da Loja Maçônica Itapetininga",
+  title: "Loja Maçônica Itapetinga",
+  description: "Sistema de Gestão da Loja Maçônica Itapetinga",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },

@@ -36,7 +36,7 @@ export function Header({ user }: Props) {
           <Image src="/logo.png" alt="Logo" width={36} height={36} className="object-cover w-full h-full" />
         </div>
         <div className="leading-tight">
-          <div className="font-semibold text-sm text-white">Loja Itapetininga</div>
+          <div className="font-semibold text-sm text-white">Loja Itapetinga</div>
           <div className="text-xs text-white/70 hidden sm:block">Gestão Maçônica</div>
         </div>
       </Link>

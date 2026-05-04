@@ -120,7 +120,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Loja Maçônica Itapetininga — {currentYear}</p>
+        <p className="text-sm text-muted-foreground">Loja Maçônica Itapetinga — {currentYear}</p>
       </div>
 
       {/* 1. Frase do Dia */}
