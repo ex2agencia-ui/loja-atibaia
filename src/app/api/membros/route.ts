@@ -40,6 +40,27 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ members, total, page, limit })
 }
 
+function parseBRDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const match = value.trim().match(/^\s*(\d{2})\/(\d{2})\/(\d{4})\s*$/)
+  if (!match) return null
+  const [, day, month, year] = match
+  return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
+}
+
+function parseMaybeDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const v = value.trim()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    return new Date(v + "T12:00:00.000Z")
+  }
+  const br = parseBRDate(v)
+  if (br) return br
+  const d = new Date(v)
+  if (!isNaN(d.getTime())) return d
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -58,17 +79,17 @@ export async function POST(req: NextRequest) {
       ...data,
       situacao: data.situacao as MemberSituacao,
       posicao: data.posicao as Posicao,
-      dataNascimento: dataNascimento ? new Date(dataNascimento) : null,
-      dataIniciacao: dataIniciacao ? new Date(dataIniciacao) : null,
-      dataElevacao: dataElevacao ? new Date(dataElevacao) : null,
-      dataExaltacao: dataExaltacao ? new Date(dataExaltacao) : null,
-      dataInstalacao: dataInstalacao ? new Date(dataInstalacao) : null,
-      dataRegulFiliacao: dataRegulFiliacao ? new Date(dataRegulFiliacao) : null,
-      nascimentoConjuge: nascimentoConjuge ? new Date(nascimentoConjuge) : null,
+      dataNascimento: dataNascimento ? parseMaybeDate(dataNascimento) : null,
+      dataIniciacao: dataIniciacao ? parseMaybeDate(dataIniciacao) : null,
+      dataElevacao: dataElevacao ? parseMaybeDate(dataElevacao) : null,
+      dataExaltacao: dataExaltacao ? parseMaybeDate(dataExaltacao) : null,
+      dataInstalacao: dataInstalacao ? parseMaybeDate(dataInstalacao) : null,
+      dataRegulFiliacao: dataRegulFiliacao ? parseMaybeDate(dataRegulFiliacao) : null,
+      nascimentoConjuge: nascimentoConjuge ? parseMaybeDate(nascimentoConjuge) : null,
       filhos: {
         create: filhos.map((f) => ({
           nome: f.nome,
-          dataNascimento: f.dataNascimento ? new Date(f.dataNascimento) : null,
+          dataNascimento: f.dataNascimento ? parseMaybeDate(f.dataNascimento) : null,
         })),
       },
     },

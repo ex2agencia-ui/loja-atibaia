@@ -14,7 +14,16 @@ import { formatarData } from "@/lib/utils/format"
 type Periodo = "semana" | "ultima-sessao" | "personalizado"
 
 type Aniversariante = {
-  tipo: "IRMAO" | "CONJUGE" | "FILHO"
+  tipo:
+    | "IRMAO"
+    | "INICIACAO"
+    | "ELEVACAO"
+    | "EXALTACAO"
+    | "REGULARIZACAO"
+    | "INSTALACAO"
+    | "CASAMENTO"
+    | "CONJUGE"
+    | "FILHO"
   nome: string
   nascimento: string
   aniversario: string
@@ -31,6 +40,12 @@ type ApiResponse = {
 
 const TIPO_CONFIG = {
   IRMAO: { label: "Irmão", icon: Users, color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+  INICIACAO: { label: "Iniciação", icon: Users, color: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200" },
+  ELEVACAO: { label: "Elevação", icon: Users, color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200" },
+  EXALTACAO: { label: "Exaltação", icon: Users, color: "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200" },
+  REGULARIZACAO: { label: "Regularização", icon: Users, color: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" },
+  INSTALACAO: { label: "Instalação", icon: Users, color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200" },
+  CASAMENTO: { label: "Casamento", icon: Heart, color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200" },
   CONJUGE: { label: "Cônjuge", icon: Heart, color: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200" },
   FILHO: { label: "Filho/a", icon: Baby, color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
 }
@@ -89,6 +104,21 @@ export default function AniversariosPage() {
           Desde a sessão de {formatarData(data.ultimaSessao.data)} até hoje
         </p>
       )}
+
+      <div className="rounded-lg border bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+        <div className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Legenda de aniversários</div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <span>• Irmão</span>
+          <span>• Iniciação</span>
+          <span>• Elevação</span>
+          <span>• Exaltação</span>
+          <span>• Regularização</span>
+          <span>• Instalação</span>
+          <span>• Casamento</span>
+          <span>• Cônjuge</span>
+          <span>• Filho/a</span>
+        </div>
+      </div>
 
       {periodo === "personalizado" && (
         <div className="flex flex-wrap items-center gap-3">

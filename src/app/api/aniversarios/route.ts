@@ -2,14 +2,34 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 
+function parseBRDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const match = value.trim().match(/^\s*(\d{2})\/(\d{2})\/(\d{4})\s*$/)
+  if (!match) return null
+  const [, day, month, year] = match
+  return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
+}
+
 function occurrenceInRange(birthday: Date, start: Date, end: Date): Date | null {
   const month = birthday.getUTCMonth()
   const day = birthday.getUTCDate()
   for (const year of new Set([start.getFullYear(), end.getFullYear()])) {
-    const d = new Date(year, month, day)
+    const d = new Date(year, month, day, 12, 0, 0)
     if (d >= start && d <= end) return d
   }
   return null
+}
+
+const TYPE_ORDER: Record<string, number> = {
+  IRMAO: 1,
+  INICIACAO: 2,
+  ELEVACAO: 3,
+  EXALTACAO: 4,
+  REGULARIZACAO: 5,
+  INSTALACAO: 6,
+  CASAMENTO: 7,
+  CONJUGE: 8,
+  FILHO: 9,
 }
 
 export async function GET(req: NextRequest) {
@@ -59,7 +79,16 @@ export async function GET(req: NextRequest) {
   ])
 
   type Aniversariante = {
-    tipo: "IRMAO" | "CONJUGE" | "FILHO"
+    tipo:
+      | "IRMAO"
+      | "INICIACAO"
+      | "ELEVACAO"
+      | "EXALTACAO"
+      | "REGULARIZACAO"
+      | "INSTALACAO"
+      | "CASAMENTO"
+      | "CONJUGE"
+      | "FILHO"
     nome: string
     nascimento: string
     aniversario: string
@@ -80,6 +109,88 @@ export async function GET(req: NextRequest) {
           aniversario: occ.toISOString(),
           idade: occ.getFullYear() - m.dataNascimento.getUTCFullYear(),
         })
+      }
+    }
+
+    if (m.dataIniciacao) {
+      const occ = occurrenceInRange(m.dataIniciacao, start, end)
+      if (occ) {
+        list.push({
+          tipo: "INICIACAO",
+          nome: m.nome,
+          nascimento: m.dataIniciacao.toISOString(),
+          aniversario: occ.toISOString(),
+          idade: occ.getFullYear() - m.dataIniciacao.getUTCFullYear(),
+        })
+      }
+    }
+
+    if (m.dataElevacao) {
+      const occ = occurrenceInRange(m.dataElevacao, start, end)
+      if (occ) {
+        list.push({
+          tipo: "ELEVACAO",
+          nome: m.nome,
+          nascimento: m.dataElevacao.toISOString(),
+          aniversario: occ.toISOString(),
+          idade: occ.getFullYear() - m.dataElevacao.getUTCFullYear(),
+        })
+      }
+    }
+
+    if (m.dataExaltacao) {
+      const occ = occurrenceInRange(m.dataExaltacao, start, end)
+      if (occ) {
+        list.push({
+          tipo: "EXALTACAO",
+          nome: m.nome,
+          nascimento: m.dataExaltacao.toISOString(),
+          aniversario: occ.toISOString(),
+          idade: occ.getFullYear() - m.dataExaltacao.getUTCFullYear(),
+        })
+      }
+    }
+
+    if (m.dataRegulFiliacao) {
+      const occ = occurrenceInRange(m.dataRegulFiliacao, start, end)
+      if (occ) {
+        list.push({
+          tipo: "REGULARIZACAO",
+          nome: m.nome,
+          nascimento: m.dataRegulFiliacao.toISOString(),
+          aniversario: occ.toISOString(),
+          idade: occ.getFullYear() - m.dataRegulFiliacao.getUTCFullYear(),
+        })
+      }
+    }
+
+    if (m.dataInstalacao) {
+      const occ = occurrenceInRange(m.dataInstalacao, start, end)
+      if (occ) {
+        list.push({
+          tipo: "INSTALACAO",
+          nome: m.nome,
+          nascimento: m.dataInstalacao.toISOString(),
+          aniversario: occ.toISOString(),
+          idade: occ.getFullYear() - m.dataInstalacao.getUTCFullYear(),
+        })
+      }
+    }
+
+    if (m.dataCasamento) {
+      const casamentoDate = parseBRDate(m.dataCasamento)
+      if (casamentoDate) {
+        const occ = occurrenceInRange(casamentoDate, start, end)
+        if (occ) {
+          list.push({
+            tipo: "CASAMENTO",
+            nome: m.nome,
+            nascimento: casamentoDate.toISOString(),
+            aniversario: occ.toISOString(),
+            idade: occ.getFullYear() - casamentoDate.getUTCFullYear(),
+            contexto: m.conjuge ?? undefined,
+          })
+        }
       }
     }
 
@@ -114,7 +225,13 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  list.sort((a, b) => new Date(a.aniversario).getTime() - new Date(b.aniversario).getTime())
+  list.sort((a, b) => {
+    const typeOrder = TYPE_ORDER[a.tipo] - TYPE_ORDER[b.tipo]
+    if (typeOrder !== 0) return typeOrder
+    const dateDiff = new Date(a.aniversario).getTime() - new Date(b.aniversario).getTime()
+    if (dateDiff !== 0) return dateDiff
+    return a.nome.localeCompare(b.nome)
+  })
 
   return NextResponse.json({
     aniversariantes: list,

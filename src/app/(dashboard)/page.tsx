@@ -14,11 +14,19 @@ import { PresenceCalculator } from "@/components/dashboard/PresenceCalculator"
 
 export const dynamic = "force-dynamic"
 
+function parseBRDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const match = value.trim().match(/^\s*(\d{2})\/(\d{2})\/(\d{4})\s*$/)
+  if (!match) return null
+  const [, day, month, year] = match
+  return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
+}
+
 function occurrenceInRange(birthday: Date, start: Date, end: Date): Date | null {
   const month = birthday.getUTCMonth()
   const day = birthday.getUTCDate()
   for (const year of new Set([start.getFullYear(), end.getFullYear()])) {
-    const d = new Date(year, month, day)
+    const d = new Date(year, month, day, 12, 0, 0)
     if (d >= start && d <= end) return d
   }
   return null
@@ -26,6 +34,12 @@ function occurrenceInRange(birthday: Date, start: Date, end: Date): Date | null 
 
 const TIPO_CONFIG = {
   IRMAO: { label: "Irmão", icon: Users, color: "bg-blue-100 text-blue-800" },
+  INICIACAO: { label: "Iniciação", icon: Users, color: "bg-slate-100 text-slate-800" },
+  ELEVACAO: { label: "Elevação", icon: Users, color: "bg-cyan-100 text-cyan-800" },
+  EXALTACAO: { label: "Exaltação", icon: Users, color: "bg-violet-100 text-violet-800" },
+  REGULARIZACAO: { label: "Regularização", icon: Users, color: "bg-amber-100 text-amber-800" },
+  INSTALACAO: { label: "Instalação", icon: Users, color: "bg-emerald-100 text-emerald-800" },
+  CASAMENTO: { label: "Casamento", icon: Heart, color: "bg-pink-100 text-pink-800" },
   CONJUGE: { label: "Cônjuge", icon: Heart, color: "bg-rose-100 text-rose-800" },
   FILHO: { label: "Filho/a", icon: Baby, color: "bg-green-100 text-green-800" },
 }
@@ -81,18 +95,66 @@ export default async function DashboardPage() {
     : (() => { const d = new Date(); d.setDate(d.getDate() - 7); d.setHours(0, 0, 0, 0); return d })()
 
   type Aniversariante = {
-    tipo: "IRMAO" | "CONJUGE" | "FILHO"
+    tipo:
+      | "IRMAO"
+      | "INICIACAO"
+      | "ELEVACAO"
+      | "EXALTACAO"
+      | "REGULARIZACAO"
+      | "INSTALACAO"
+      | "CASAMENTO"
+      | "CONJUGE"
+      | "FILHO"
     nome: string
     aniversario: Date
     idade: number
     contexto?: string
   }
 
+  const TYPE_ORDER = {
+    IRMAO: 1,
+    INICIACAO: 2,
+    ELEVACAO: 3,
+    EXALTACAO: 4,
+    REGULARIZACAO: 5,
+    INSTALACAO: 6,
+    CASAMENTO: 7,
+    CONJUGE: 8,
+    FILHO: 9,
+  } as const
+
   const aniversariantes: Aniversariante[] = []
   for (const m of members) {
     if (m.dataNascimento) {
       const occ = occurrenceInRange(m.dataNascimento, inicioAniv, agora)
       if (occ) aniversariantes.push({ tipo: "IRMAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataNascimento.getUTCFullYear() })
+    }
+    if (m.dataIniciacao) {
+      const occ = occurrenceInRange(m.dataIniciacao, inicioAniv, agora)
+      if (occ) aniversariantes.push({ tipo: "INICIACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataIniciacao.getUTCFullYear() })
+    }
+    if (m.dataElevacao) {
+      const occ = occurrenceInRange(m.dataElevacao, inicioAniv, agora)
+      if (occ) aniversariantes.push({ tipo: "ELEVACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataElevacao.getUTCFullYear() })
+    }
+    if (m.dataExaltacao) {
+      const occ = occurrenceInRange(m.dataExaltacao, inicioAniv, agora)
+      if (occ) aniversariantes.push({ tipo: "EXALTACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataExaltacao.getUTCFullYear() })
+    }
+    if (m.dataRegulFiliacao) {
+      const occ = occurrenceInRange(m.dataRegulFiliacao, inicioAniv, agora)
+      if (occ) aniversariantes.push({ tipo: "REGULARIZACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataRegulFiliacao.getUTCFullYear() })
+    }
+    if (m.dataInstalacao) {
+      const occ = occurrenceInRange(m.dataInstalacao, inicioAniv, agora)
+      if (occ) aniversariantes.push({ tipo: "INSTALACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataInstalacao.getUTCFullYear() })
+    }
+    if (m.dataCasamento) {
+      const casamentoDate = parseBRDate(m.dataCasamento)
+      if (casamentoDate) {
+        const occ = occurrenceInRange(casamentoDate, inicioAniv, agora)
+        if (occ) aniversariantes.push({ tipo: "CASAMENTO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - casamentoDate.getUTCFullYear(), contexto: m.conjuge ?? undefined })
+      }
     }
     if (m.nascimentoConjuge && m.conjuge) {
       const occ = occurrenceInRange(m.nascimentoConjuge, inicioAniv, agora)
@@ -105,7 +167,11 @@ export default async function DashboardPage() {
       }
     }
   }
-  aniversariantes.sort((a, b) => a.aniversario.getTime() - b.aniversario.getTime())
+  aniversariantes.sort((a, b) => {
+    const order = TYPE_ORDER[a.tipo] - TYPE_ORDER[b.tipo]
+    if (order !== 0) return order
+    return a.aniversario.getTime() - b.aniversario.getTime()
+  })
 
   const total = totalAtivos + totalInativos
 
@@ -212,7 +278,13 @@ export default async function DashboardPage() {
                   ? "Irmão"
                   : a.tipo === "CONJUGE"
                     ? `Cônjuge de ${a.contexto}`
-                    : `Filho/a de ${a.contexto}`
+                    : a.tipo === "FILHO"
+                      ? `Filho/a de ${a.contexto}`
+                      : a.tipo === "CASAMENTO"
+                        ? a.contexto
+                          ? `Casamento com ${a.contexto}`
+                          : "Casamento"
+                        : TIPO_CONFIG[a.tipo]?.label ?? ""
                 return (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
                     <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
@@ -231,6 +303,20 @@ export default async function DashboardPage() {
               })}
             </div>
           )}
+          <div className="mt-4 rounded-lg border bg-slate-50 p-3 text-xs text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+            <div className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Legenda de aniversários</div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <span>• Irmão</span>
+              <span>• Iniciação</span>
+              <span>• Elevação</span>
+              <span>• Exaltação</span>
+              <span>• Regularização</span>
+              <span>• Instalação</span>
+              <span>• Casamento</span>
+              <span>• Cônjuge</span>
+              <span>• Filho/a</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

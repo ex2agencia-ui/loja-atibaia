@@ -18,9 +18,18 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     const fd = new FormData(e.currentTarget)
+    const emailEntry = fd.get("email")
+    const passwordEntry = fd.get("password")
+
+    if (typeof emailEntry !== "string" || typeof passwordEntry !== "string") {
+      setLoading(false)
+      toast.error("Preencha email e senha")
+      return
+    }
+
     const result = await signIn("credentials", {
-      email: fd.get("email"),
-      password: fd.get("password"),
+      email: emailEntry.trim().toLowerCase(),
+      password: passwordEntry,
       redirect: false,
     })
     setLoading(false)

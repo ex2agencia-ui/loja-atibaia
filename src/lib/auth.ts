@@ -9,22 +9,59 @@ const loginSchema = z.object({
 })
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET,
   session: { strategy: "jwt" },
   providers: [
     Credentials({
+      id: "credentials",
+      name: "Credenciais",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "admin@loja.com" },
+        password: { label: "Senha", type: "password" },
+      },
       async authorize(credentials) {
-        const parsed = loginSchema.safeParse(credentials)
-        if (!parsed.success) return null
+        const safeCredentials = {
+          email:
+            typeof credentials?.email === "string"
+              ? credentials.email.trim().toLowerCase()
+              : "",
+          password:
+            typeof credentials?.password === "string"
+              ? credentials.password
+              : "",
+        }
+
+        if (process.env.NODE_ENV === "development") {
+          console.debug("authorize credentials:", safeCredentials)
+        }
+
+        const parsed = loginSchema.safeParse(safeCredentials)
+        if (!parsed.success) {
+          if (process.env.NODE_ENV === "development") {
+            console.debug("authorize validation failed:", parsed.error.format())
+          }
+          return null
+        }
 
         // Dynamic import keeps Prisma out of the Edge/proxy bundle
         const { prisma } = await import("./prisma")
         const user = await prisma.user.findUnique({
           where: { email: parsed.data.email },
         })
-        if (!user?.password) return null
+        if (!user?.password) {
+          if (process.env.NODE_ENV === "development") {
+            console.debug("authorize failed: user not found or missing password", parsed.data.email)
+          }
+          return null
+        }
 
         const valid = await bcrypt.compare(parsed.data.password, user.password)
-        if (!valid) return null
+        if (!valid) {
+          if (process.env.NODE_ENV === "development") {
+            console.debug("authorize failed: invalid password for", parsed.data.email)
+          }
+          return null
+        }
 
         return { id: user.id, name: user.name, email: user.email, role: user.role }
       },
