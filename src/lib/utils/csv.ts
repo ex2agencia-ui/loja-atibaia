@@ -18,7 +18,7 @@ export function exportCSV(filename: string, rows: Record<string, unknown>[]) {
 }
 
 export function parseCSV(text: string): Record<string, string>[] {
-  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim().split("\n")
+  const lines = text.replace(/^﻿/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim().split("\n")
   if (lines.length < 2) return []
   const headers = splitLine(lines[0]).map(h => h.trim())
   return lines.slice(1).filter(l => l.trim()).map(line => {

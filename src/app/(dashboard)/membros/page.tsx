@@ -18,7 +18,9 @@ export default function MembrosPage() {
   const [situacao, setSituacao] = useState("ATIVO")
   const [posicao, setPosicao] = useState("")
   const [importing, setImporting] = useState(false)
+  const [importingSobrinhos, setImportingSobrinhos] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
+  const importSobrinhosRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
 
   const params = new URLSearchParams()
@@ -64,6 +66,49 @@ export default function MembrosPage() {
     })))
   }
 
+  async function handleExportSobrinhos() {
+    try {
+      const res = await fetch("/api/membros/filhos")
+      const result = await res.json()
+      const filhos = result.filhos ?? []
+      if (!filhos.length) { toast.error("Nenhum sobrinho cadastrado"); return }
+      exportCSV("sobrinhos.csv", filhos.map((f: { cim: string; nomeIrmao: string; nome: string; dataNascimento: string }) => ({
+        cim: f.cim,
+        nomeIrmao: f.nomeIrmao,
+        nome: f.nome,
+        dataNascimento: f.dataNascimento,
+      })))
+    } catch {
+      toast.error("Erro ao exportar sobrinhos")
+    }
+  }
+
+  async function handleImportSobrinhos(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImportingSobrinhos(true)
+    try {
+      const text = await file.text()
+      const rows = parseCSV(text)
+      if (!rows.length) { toast.error("CSV vazio ou inválido"); return }
+      const res = await fetch("/api/membros/filhos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filhos: rows }),
+      })
+      const result = await res.json()
+      if (result.errors?.length) {
+        toast.warning(`${result.created} criados, ${result.updated} atualizados — ${result.errors.length} erro(s)`)
+      } else {
+        toast.success(`${result.created} criados, ${result.updated} atualizados`)
+      }
+      queryClient.invalidateQueries({ queryKey: ["members"] })
+    } finally {
+      setImportingSobrinhos(false)
+      e.target.value = ""
+    }
+  }
+
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -107,6 +152,13 @@ export default function MembrosPage() {
             <Upload className="h-4 w-4 mr-2" />{importing ? "Importando..." : "Importar"}
           </Button>
           <input ref={importRef} type="file" accept=".csv" className="hidden" onChange={handleImport} />
+          <Button variant="outline" size="sm" onClick={handleExportSobrinhos}>
+            <Download className="h-4 w-4 mr-2" />Exportar Sobrinhos
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => importSobrinhosRef.current?.click()} disabled={importingSobrinhos}>
+            <Upload className="h-4 w-4 mr-2" />{importingSobrinhos ? "Importando..." : "Importar Sobrinhos"}
+          </Button>
+          <input ref={importSobrinhosRef} type="file" accept=".csv" className="hidden" onChange={handleImportSobrinhos} />
           <Link href="/membros/novo" className={cn(buttonVariants())}>
             <Plus className="h-4 w-4 mr-2" />Novo Irmão
           </Link>

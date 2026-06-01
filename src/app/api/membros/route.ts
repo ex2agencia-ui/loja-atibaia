@@ -40,25 +40,23 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ members, total, page, limit })
 }
 
-function parseBRDate(value: string | null | undefined): Date | null {
-  if (!value) return null
-  const match = value.trim().match(/^\s*(\d{2})\/(\d{2})\/(\d{4})\s*$/)
-  if (!match) return null
-  const [, day, month, year] = match
-  return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
-}
-
 function parseMaybeDate(value: string | null | undefined): Date | null {
   if (!value) return null
   const v = value.trim()
+  if (!v) return null
+  // ISO: YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-    return new Date(v + "T12:00:00.000Z")
+    const d = new Date(v + "T12:00:00.000Z")
+    return isNaN(d.getTime()) ? null : d
   }
-  const br = parseBRDate(v)
-  if (br) return br
+  // BR com traço ou barra: DD-MM-YYYY ou DD/MM/YYYY
+  const m = v.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/)
+  if (m) {
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), 12, 0, 0)
+    return isNaN(d.getTime()) ? null : d
+  }
   const d = new Date(v)
-  if (!isNaN(d.getTime())) return d
-  return null
+  return isNaN(d.getTime()) ? null : d
 }
 
 export async function POST(req: NextRequest) {

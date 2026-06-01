@@ -2,7 +2,24 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-const toDate = (s: string) => (s ? new Date(s) : null)
+function toDate(s: string): Date | null {
+  if (!s) return null
+  const v = s.trim()
+  if (!v) return null
+  // ISO: YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    const d = new Date(v + "T12:00:00.000Z")
+    return isNaN(d.getTime()) ? null : d
+  }
+  // BR com traço ou barra: DD-MM-YYYY ou DD/MM/YYYY
+  const m = v.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/)
+  if (m) {
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), 12, 0, 0)
+    return isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(v)
+  return isNaN(d.getTime()) ? null : d
+}
 const SITUACOES = ["ATIVO", "INATIVO"]
 const POSICOES = ["MI", "CM", "MM", "AM"]
 
