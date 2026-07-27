@@ -77,12 +77,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   pages: { signIn: "/login" },
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         const u = user as { role: string; memberId?: string | null; mustChangePassword?: boolean }
         token.role = u.role
         token.memberId = u.memberId ?? null
         token.mustChangePassword = u.mustChangePassword ?? false
+      }
+      // Refresh role from DB if missing (e.g. JWT issued before roles were added)
+      if (!token.role && token.sub) {
+        const { prisma } = await import("./prisma")
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, memberId: true, mustChangePassword: true },
+        })
+        if (dbUser) {
+          token.role = dbUser.role
+          token.memberId = dbUser.memberId ?? null
+          token.mustChangePassword = dbUser.mustChangePassword
+        }
       }
       return token
     },
