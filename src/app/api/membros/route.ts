@@ -3,10 +3,13 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { memberSchema } from "@/lib/validations/member"
 import { Posicao, MemberSituacao } from "@/generated/prisma"
+import { requireRole, ROLES_READ_ALL_MEMBERS, ROLES_WRITE_MEMBERS } from "@/lib/permissions"
 
 export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  const err = requireRole(session, ROLES_READ_ALL_MEMBERS)
+  if (err) return err
 
   const { searchParams } = new URL(req.url)
   const situacao = searchParams.get("situacao") as MemberSituacao | null
@@ -62,6 +65,8 @@ function parseMaybeDate(value: string | null | undefined): Date | null {
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  const err = requireRole(session, ROLES_WRITE_MEMBERS)
+  if (err) return err
 
   const body = await req.json()
   const parsed = memberSchema.safeParse(body)

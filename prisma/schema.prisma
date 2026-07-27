@@ -11,20 +11,26 @@ datasource db {
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String?
-  role      UserRole @default(ADMIN)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String?
+  email              String   @unique
+  password           String?
+  role               UserRole @default(MEMBRO)
+  mustChangePassword Boolean  @default(false)
+  memberId           String?  @unique
+  member             Member?  @relation(fields: [memberId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@map("users")
 }
 
 enum UserRole {
   ADMIN
-  VIEWER
+  SECRETARIO
+  FINANCEIRO
+  CHANCELARIA
+  MEMBRO
 }
 
 // ─── Members ──────────────────────────────────────────────────────────────────
@@ -61,6 +67,7 @@ model Member {
 
   filhos    Filho[]
   presencas Presenca[]
+  user      User?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

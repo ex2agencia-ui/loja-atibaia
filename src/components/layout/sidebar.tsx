@@ -2,20 +2,38 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote } from "lucide-react"
+import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, UserCog, User } from "lucide-react"
 
-const nav = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/membros", label: "Irmãos", icon: Users },
-  { href: "/sessoes", label: "Sessões", icon: CalendarDays },
-  { href: "/aniversarios", label: "Aniversários", icon: Cake },
-  { href: "/frases", label: "Frases", icon: Quote },
-  { href: "/relatorios/presenca", label: "Relatórios", icon: BarChart3 },
+type NavItem = {
+  href: string
+  label: string
+  icon: React.ElementType
+  roles?: string[] // undefined = todos os roles autenticados
+}
+
+const allNav: NavItem[] = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
+  { href: "/perfil", label: "Meu Perfil", icon: User }, // todos
+  { href: "/membros", label: "Irmãos", icon: Users, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
+  { href: "/sessoes", label: "Sessões", icon: CalendarDays }, // todos
+  { href: "/aniversarios", label: "Aniversários", icon: Cake, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
+  { href: "/frases", label: "Frases", icon: Quote, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA"] },
+  { href: "/relatorios/presenca", label: "Relatórios", icon: BarChart3, roles: ["ADMIN", "SECRETARIO", "FINANCEIRO"] },
+  { href: "/usuarios", label: "Usuários", icon: UserCog, roles: ["ADMIN"] },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const role = (session?.user as any)?.role as string | undefined
+
+  const nav = allNav.filter((item) => {
+    if (!item.roles) return true
+    return role && item.roles.includes(role)
+  })
 
   return (
     <aside className="hidden md:flex flex-col w-56 bg-slate-900 text-slate-100 shrink-0">

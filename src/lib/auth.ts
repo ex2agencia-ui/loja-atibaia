@@ -47,6 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { prisma } = await import("./prisma")
         const user = await prisma.user.findUnique({
           where: { email: parsed.data.email },
+          select: { id: true, name: true, email: true, password: true, role: true, memberId: true, mustChangePassword: true },
         })
         if (!user?.password) {
           if (process.env.NODE_ENV === "development") {
@@ -63,19 +64,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        return { id: user.id, name: user.name, email: user.email, role: user.role }
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          memberId: user.memberId,
+          mustChangePassword: user.mustChangePassword,
+        }
       },
     }),
   ],
   pages: { signIn: "/login" },
   callbacks: {
     jwt({ token, user }) {
-      if (user) token.role = (user as { role: string }).role
+      if (user) {
+        const u = user as { role: string; memberId?: string | null; mustChangePassword?: boolean }
+        token.role = u.role
+        token.memberId = u.memberId ?? null
+        token.mustChangePassword = u.mustChangePassword ?? false
+      }
       return token
     },
     session({ session, token }) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (session.user) (session.user as any).role = token.role as string
+      if (session.user) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const u = session.user as any
+        u.role = token.role as string
+        u.memberId = token.memberId as string | null
+        u.mustChangePassword = token.mustChangePassword as boolean
+      }
       return session
     },
   },

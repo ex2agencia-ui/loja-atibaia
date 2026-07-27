@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { requireRole, ROLES_RELATORIOS } from "@/lib/permissions"
 
 export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  const err = requireRole(session, ROLES_RELATORIOS)
+  if (err) return err
 
   const { searchParams } = new URL(req.url)
   const from = searchParams.get("from")

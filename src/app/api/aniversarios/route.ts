@@ -10,9 +10,27 @@ function parseBRDate(value: string | null | undefined): Date | null {
   return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
 }
 
+// Converte Date do banco (salvo como meia-noite BRT = T21:00Z ou T22:00Z) para {day, month, year} BRT.
+// Usa Intl para interpretar a data no fuso de São Paulo, independente do ambiente de execução.
+function dateToBRT(date: Date): { day: number; month: number; year: number } {
+  const parts = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).formatToParts(date)
+  const get = (t: string) => parseInt(parts.find((p) => p.type === t)!.value)
+  return { day: get("day"), month: get("month") - 1, year: get("year") }
+}
+
+// Serializa a data do banco como ISO string com o dia BRT correto (meio-dia UTC para evitar drift).
+function toBRTISOString(date: Date): string {
+  const { day, month, year } = dateToBRT(date)
+  return new Date(Date.UTC(year, month, day, 12, 0, 0)).toISOString()
+}
+
 function occurrenceInRange(birthday: Date, start: Date, end: Date): Date | null {
-  const month = birthday.getUTCMonth()
-  const day = birthday.getUTCDate()
+  const { day, month } = dateToBRT(birthday)
   for (const year of new Set([start.getFullYear(), end.getFullYear()])) {
     const d = new Date(year, month, day, 12, 0, 0)
     if (d >= start && d <= end) return d
@@ -105,9 +123,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "IRMAO",
           nome: m.nome,
-          nascimento: m.dataNascimento.toISOString(),
+          nascimento: toBRTISOString(m.dataNascimento),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.dataNascimento.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.dataNascimento).year,
         })
       }
     }
@@ -118,9 +136,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "INICIACAO",
           nome: m.nome,
-          nascimento: m.dataIniciacao.toISOString(),
+          nascimento: toBRTISOString(m.dataIniciacao),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.dataIniciacao.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.dataIniciacao).year,
         })
       }
     }
@@ -131,9 +149,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "ELEVACAO",
           nome: m.nome,
-          nascimento: m.dataElevacao.toISOString(),
+          nascimento: toBRTISOString(m.dataElevacao),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.dataElevacao.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.dataElevacao).year,
         })
       }
     }
@@ -144,9 +162,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "EXALTACAO",
           nome: m.nome,
-          nascimento: m.dataExaltacao.toISOString(),
+          nascimento: toBRTISOString(m.dataExaltacao),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.dataExaltacao.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.dataExaltacao).year,
         })
       }
     }
@@ -157,9 +175,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "REGULARIZACAO",
           nome: m.nome,
-          nascimento: m.dataRegulFiliacao.toISOString(),
+          nascimento: toBRTISOString(m.dataRegulFiliacao),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.dataRegulFiliacao.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.dataRegulFiliacao).year,
         })
       }
     }
@@ -170,9 +188,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "INSTALACAO",
           nome: m.nome,
-          nascimento: m.dataInstalacao.toISOString(),
+          nascimento: toBRTISOString(m.dataInstalacao),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.dataInstalacao.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.dataInstalacao).year,
         })
       }
     }
@@ -185,9 +203,9 @@ export async function GET(req: NextRequest) {
           list.push({
             tipo: "CASAMENTO",
             nome: m.nome,
-            nascimento: casamentoDate.toISOString(),
+            nascimento: toBRTISOString(casamentoDate),
             aniversario: occ.toISOString(),
-            idade: occ.getFullYear() - casamentoDate.getUTCFullYear(),
+            idade: occ.getFullYear() - dateToBRT(casamentoDate).year,
             contexto: m.conjuge ?? undefined,
           })
         }
@@ -200,9 +218,9 @@ export async function GET(req: NextRequest) {
         list.push({
           tipo: "CONJUGE",
           nome: m.conjuge,
-          nascimento: m.nascimentoConjuge.toISOString(),
+          nascimento: toBRTISOString(m.nascimentoConjuge),
           aniversario: occ.toISOString(),
-          idade: occ.getFullYear() - m.nascimentoConjuge.getUTCFullYear(),
+          idade: occ.getFullYear() - dateToBRT(m.nascimentoConjuge).year,
           contexto: m.nome,
         })
       }
@@ -215,9 +233,9 @@ export async function GET(req: NextRequest) {
           list.push({
             tipo: "FILHO",
             nome: f.nome,
-            nascimento: f.dataNascimento.toISOString(),
+            nascimento: toBRTISOString(f.dataNascimento),
             aniversario: occ.toISOString(),
-            idade: occ.getFullYear() - f.dataNascimento.getUTCFullYear(),
+            idade: occ.getFullYear() - dateToBRT(f.dataNascimento).year,
             contexto: m.nome,
           })
         }

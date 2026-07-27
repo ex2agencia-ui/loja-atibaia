@@ -3,10 +3,12 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { sessionSchema } from "@/lib/validations/session"
 import { SessionTipo } from "@/generated/prisma"
+import { requireRole, ROLES_SESSOES_WRITE } from "@/lib/permissions"
 
 export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  // todos os roles autenticados podem listar sessões
 
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get("page") || "1")
@@ -28,6 +30,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  const err = requireRole(session, ROLES_SESSOES_WRITE)
+  if (err) return err
 
   const body = await req.json()
   const parsed = sessionSchema.safeParse(body)

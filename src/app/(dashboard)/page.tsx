@@ -22,9 +22,19 @@ function parseBRDate(value: string | null | undefined): Date | null {
   return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
 }
 
+function dateToBRT(date: Date): { day: number; month: number; year: number } {
+  const parts = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).formatToParts(date)
+  const get = (t: string) => parseInt(parts.find((p) => p.type === t)!.value)
+  return { day: get("day"), month: get("month") - 1, year: get("year") }
+}
+
 function occurrenceInRange(birthday: Date, start: Date, end: Date): Date | null {
-  const month = birthday.getUTCMonth()
-  const day = birthday.getUTCDate()
+  const { day, month } = dateToBRT(birthday)
   for (const year of new Set([start.getFullYear(), end.getFullYear()])) {
     const d = new Date(year, month, day, 12, 0, 0)
     if (d >= start && d <= end) return d
@@ -127,43 +137,43 @@ export default async function DashboardPage() {
   for (const m of members) {
     if (m.dataNascimento) {
       const occ = occurrenceInRange(m.dataNascimento, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "IRMAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataNascimento.getUTCFullYear() })
+      if (occ) aniversariantes.push({ tipo: "IRMAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.dataNascimento).year })
     }
     if (m.dataIniciacao) {
       const occ = occurrenceInRange(m.dataIniciacao, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "INICIACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataIniciacao.getUTCFullYear() })
+      if (occ) aniversariantes.push({ tipo: "INICIACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.dataIniciacao).year })
     }
     if (m.dataElevacao) {
       const occ = occurrenceInRange(m.dataElevacao, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "ELEVACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataElevacao.getUTCFullYear() })
+      if (occ) aniversariantes.push({ tipo: "ELEVACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.dataElevacao).year })
     }
     if (m.dataExaltacao) {
       const occ = occurrenceInRange(m.dataExaltacao, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "EXALTACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataExaltacao.getUTCFullYear() })
+      if (occ) aniversariantes.push({ tipo: "EXALTACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.dataExaltacao).year })
     }
     if (m.dataRegulFiliacao) {
       const occ = occurrenceInRange(m.dataRegulFiliacao, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "REGULARIZACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataRegulFiliacao.getUTCFullYear() })
+      if (occ) aniversariantes.push({ tipo: "REGULARIZACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.dataRegulFiliacao).year })
     }
     if (m.dataInstalacao) {
       const occ = occurrenceInRange(m.dataInstalacao, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "INSTALACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - m.dataInstalacao.getUTCFullYear() })
+      if (occ) aniversariantes.push({ tipo: "INSTALACAO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.dataInstalacao).year })
     }
     if (m.dataCasamento) {
       const casamentoDate = parseBRDate(m.dataCasamento)
       if (casamentoDate) {
         const occ = occurrenceInRange(casamentoDate, inicioAniv, agora)
-        if (occ) aniversariantes.push({ tipo: "CASAMENTO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - casamentoDate.getUTCFullYear(), contexto: m.conjuge ?? undefined })
+        if (occ) aniversariantes.push({ tipo: "CASAMENTO", nome: m.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(casamentoDate).year, contexto: m.conjuge ?? undefined })
       }
     }
     if (m.nascimentoConjuge && m.conjuge) {
       const occ = occurrenceInRange(m.nascimentoConjuge, inicioAniv, agora)
-      if (occ) aniversariantes.push({ tipo: "CONJUGE", nome: m.conjuge, aniversario: occ, idade: occ.getFullYear() - m.nascimentoConjuge.getUTCFullYear(), contexto: m.nome })
+      if (occ) aniversariantes.push({ tipo: "CONJUGE", nome: m.conjuge, aniversario: occ, idade: occ.getFullYear() - dateToBRT(m.nascimentoConjuge).year, contexto: m.nome })
     }
     for (const f of m.filhos) {
       if (f.dataNascimento) {
         const occ = occurrenceInRange(f.dataNascimento, inicioAniv, agora)
-        if (occ) aniversariantes.push({ tipo: "FILHO", nome: f.nome, aniversario: occ, idade: occ.getFullYear() - f.dataNascimento.getUTCFullYear(), contexto: m.nome })
+        if (occ) aniversariantes.push({ tipo: "FILHO", nome: f.nome, aniversario: occ, idade: occ.getFullYear() - dateToBRT(f.dataNascimento).year, contexto: m.nome })
       }
     }
   }
