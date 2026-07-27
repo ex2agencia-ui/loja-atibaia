@@ -12,9 +12,13 @@
  */
 
 import { PrismaClient } from "../src/generated/prisma"
+import { PrismaNeonHttp } from "@prisma/adapter-neon"
 import bcrypt from "bcryptjs"
+import * as dotenv from "dotenv"
+dotenv.config({ path: new URL("../.env", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1") })
 
-const prisma = new PrismaClient()
+const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!, {})
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   const members = await prisma.member.findMany({

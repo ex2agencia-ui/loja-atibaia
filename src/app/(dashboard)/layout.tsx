@@ -10,6 +10,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await auth()
   if (!session) redirect("/login")
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user = session.user as any
+  if (user?.mustChangePassword) redirect("/trocar-senha")
+
   return (
     <div className="flex flex-col h-full">
       <NavigationLoader />

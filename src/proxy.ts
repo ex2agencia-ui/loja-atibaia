@@ -8,15 +8,18 @@ export function proxy(request: NextRequest) {
   }
 
   // Optimistic session check — actual validation happens in server components
-  const hasSession =
+  const sessionToken =
     request.cookies.get("authjs.session-token")?.value ||
     request.cookies.get("next-auth.session-token")?.value ||
     request.cookies.get("__Secure-authjs.session-token")?.value ||
     request.cookies.get("__Secure-next-auth.session-token")?.value
 
-  if (!hasSession) {
+  if (!sessionToken) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
+
+  // Role-based guards são feitos nos server components e API routes via auth()
+  // O proxy só garante que há sessão; permissões granulares ficam no servidor
 
   return NextResponse.next()
 }
