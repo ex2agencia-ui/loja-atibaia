@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <NavigationLoader />
       <Header user={{ name: session.user?.name, email: session.user?.email }} vercelUrl={process.env.VERCEL_URL} />
       <div className="flex flex-1 min-h-0">
-        <Sidebar />
+        <Sidebar role={user?.role} />
         <main className="flex-1 overflow-auto pb-16 md:pb-0">
           <div className="container mx-auto px-4 py-6 max-w-7xl">
             {children}
