@@ -19,6 +19,7 @@ model User {
   mustChangePassword Boolean  @default(false)
   memberId           String?  @unique
   member             Member?  @relation(fields: [memberId], references: [id])
+  comunicadosEnviados Comunicado[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -76,6 +77,7 @@ model Member {
   posts          Post[]
   comentarios    Comentario[]
   reacoes        Reacao[]
+  comunicadosRecebidos ComunicadoDestinatario[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -153,6 +155,7 @@ model Post {
   member      Member                 @relation(fields: [memberId], references: [id], onDelete: Cascade)
   comentarios Comentario[]
   reacoes     Reacao[]
+  comunicado  Comunicado?
 
   @@index([memberId])
   @@index([tipo])
@@ -199,6 +202,42 @@ model Reacao {
 enum PostTipo {
   FEED
   CLASSIFICADO
+}
+
+// ─── Comunicados ──────────────────────────────────────────────────────────────
+
+model Comunicado {
+  id            String                   @id @default(cuid())
+  autorId       String
+  titulo        String
+  texto         String                   @db.Text
+  imagens       String[]
+  noFeed        Boolean                  @default(false)
+  postId        String?                  @unique
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  autor         User                     @relation(fields: [autorId], references: [id])
+  post          Post?                    @relation(fields: [postId], references: [id])
+  destinatarios ComunicadoDestinatario[]
+
+  @@index([autorId])
+  @@index([createdAt])
+  @@map("comunicados")
+}
+
+model ComunicadoDestinatario {
+  id           String     @id @default(cuid())
+  comunicadoId String
+  memberId     String
+  lidoEm       DateTime?
+  createdAt    DateTime   @default(now())
+  comunicado   Comunicado @relation(fields: [comunicadoId], references: [id], onDelete: Cascade)
+  member       Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([comunicadoId, memberId])
+  @@index([memberId])
+  @@index([comunicadoId])
+  @@map("comunicado_destinatarios")
 }
 
 // ─── Frases ───────────────────────────────────────────────────────────────────
