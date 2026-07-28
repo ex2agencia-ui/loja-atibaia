@@ -28,9 +28,10 @@ export default function NovoMembroPage() {
         const err = await res.json()
         throw new Error(JSON.stringify(err.error))
       }
+      const created = await res.json()
       await qc.invalidateQueries({ queryKey: ["members"] })
-      toast.success("Irmão cadastrado com sucesso!")
-      router.push("/membros")
+      toast.success("Irmão cadastrado! Configure o acesso ao sistema abaixo.")
+      router.push(`/membros/${created.id}`)
     } catch (e) {
       toast.error("Erro ao cadastrar: " + (e as Error).message)
     } finally {
