@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User } from "lucide-react"
+import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User, Briefcase } from "lucide-react"
 
 type NavItem = {
   href: string
@@ -19,6 +19,7 @@ const allNav: NavItem[] = [
   { href: "/sessoes", label: "Sessões", icon: CalendarDays },
   { href: "/aniversarios", label: "Aniversários", icon: Cake, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
   { href: "/frases", label: "Frases", icon: Quote, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA"] },
+  { href: "/classificados", label: "Classificados", icon: Briefcase },
   { href: "/relatorios/presenca", label: "Relatórios", icon: BarChart3, roles: ["ADMIN", "SECRETARIO", "FINANCEIRO"] },
 ]
 

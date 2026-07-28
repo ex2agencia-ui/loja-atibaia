@@ -69,9 +69,10 @@ model Member {
   nascimentoConjuge DateTime?
   dataCasamento     String?
 
-  filhos    Filho[]
-  presencas Presenca[]
-  user      User?
+  filhos         Filho[]
+  presencas      Presenca[]
+  user           User?
+  classificados  Classificado[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -101,6 +102,34 @@ enum Posicao {
   CM
   MM
   AM
+}
+
+// ─── Classificados ────────────────────────────────────────────────────────────
+
+model Classificado {
+  id         String                @id @default(cuid())
+  memberId   String
+  titulo     String
+  descricao  String                @db.Text
+  categoria  CategoriaClassificado
+  contato    String?
+  ativo      Boolean               @default(true)
+  expiresAt  DateTime?
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+  member     Member                @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([categoria])
+  @@index([ativo])
+  @@map("classificados")
+}
+
+enum CategoriaClassificado {
+  SERVICO
+  PRODUTO
+  OPORTUNIDADE
+  PROCURA
 }
 
 // ─── Frases ───────────────────────────────────────────────────────────────────
