@@ -60,11 +60,7 @@ function EditarRoleDialog({ usuario, onSaved }: { usuario: UsuarioVinculado; onS
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Pencil className="h-3.5 w-3.5 mr-1.5" /> Editar perfil
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button variant="outline" size="sm"><Pencil className="h-3.5 w-3.5 mr-1.5" /> Editar perfil</Button>} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Alterar perfil de acesso</DialogTitle>
@@ -124,11 +120,7 @@ export function CriarContaDialog({ memberId, membroNome, membroEmail, onCreated 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <UserPlus className="h-3.5 w-3.5 mr-1.5" /> Criar conta de acesso
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button size="sm"><UserPlus className="h-3.5 w-3.5 mr-1.5" /> Criar conta de acesso</Button>} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Criar conta para {membroNome}</DialogTitle>

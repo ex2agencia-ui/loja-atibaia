@@ -66,11 +66,7 @@ export function NovoClassificadoDialog({ onCreated }: { onCreated: () => void })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" /> Publicar anúncio
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button><Plus className="h-4 w-4 mr-2" /> Publicar anúncio</Button>} />
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Novo anúncio</DialogTitle>
