@@ -96,12 +96,15 @@ export async function POST(req: NextRequest) {
     data: { autorId: user.id, titulo, texto, imagens, noFeed },
   })
 
-  // Cria destinatários
+  // Cria destinatários individualmente (createMany/upsert disparam transação no Neon HTTP)
   if (membros.length > 0) {
-    await prisma.comunicadoDestinatario.createMany({
-      data: membros.map(m => ({ comunicadoId: comunicado.id, memberId: m.id })),
-      skipDuplicates: true,
-    })
+    await Promise.all(
+      membros.map(m =>
+        prisma.comunicadoDestinatario.create({
+          data: { comunicadoId: comunicado.id, memberId: m.id },
+        }).catch(() => null) // ignora duplicatas
+      )
+    )
   }
 
   // Se noFeed, cria Post no mural
