@@ -224,6 +224,61 @@ export function MemberForm({ defaultValues, onSubmit, loading }: MemberFormProps
           <Field label="Notas Profissionais">
             <Textarea {...form.register("notasOcupacao")} rows={3} placeholder="Informações adicionais sobre atuação profissional..." />
           </Field>
+
+          <div>
+            <SectionTitle>Contato</SectionTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+              <Field label="Telefone / Celular">
+                <Input {...form.register("telefone")} placeholder="(11) 99999-9999" />
+              </Field>
+              <div className="flex items-center gap-3 pt-7">
+                <Controller control={form.control} name="isWhatsapp" render={({ field }) => (
+                  <Switch checked={field.value} onCheckedChange={field.onChange} id="whatsapp-prof" />
+                )} />
+                <Label htmlFor="whatsapp-prof">É WhatsApp</Label>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Field label="Email">
+                <Input type="email" {...form.register("email")} />
+              </Field>
+            </div>
+          </div>
+
+          <div>
+            <SectionTitle>Endereço</SectionTitle>
+            <div className="grid grid-cols-2 gap-4 mt-3">
+              <Field label="CEP">
+                <Input
+                  {...form.register("cep")}
+                  placeholder="00000-000"
+                  onBlur={(e) => buscarCep(e.target.value)}
+                />
+              </Field>
+              <div />
+            </div>
+            <div className="mt-4">
+              <Field label="Rua">
+                <Input {...form.register("rua")} />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+              <Field label="Número">
+                <Input {...form.register("numero")} />
+              </Field>
+              <Field label="Complemento">
+                <Input {...form.register("complemento")} />
+              </Field>
+              <Field label="Bairro">
+                <Input {...form.register("bairro")} />
+              </Field>
+            </div>
+            <div className="mt-4">
+              <Field label="Cidade">
+                <Input {...form.register("cidade")} />
+              </Field>
+            </div>
+          </div>
         </TabsContent>
 
         {/* FAMÍLIA */}
