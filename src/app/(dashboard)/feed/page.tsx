@@ -97,12 +97,16 @@ export default function FeedPage() {
         <p className="text-sm text-muted-foreground">Novidades e comunicados da Loja</p>
       </div>
 
-      {hasMembro && (
+      {hasMembro ? (
         <PostComposer
           onCreated={handleCreated}
           membroNome={me?.membroNome}
         />
-      )}
+      ) : isPrivileged ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+          Para publicar no mural, vincule seu usuário a um membro em <strong>Irmãos → Acesso ao Sistema</strong>.
+        </div>
+      ) : null}
 
       {isLoading ? (
         <div className="flex justify-center py-12">
