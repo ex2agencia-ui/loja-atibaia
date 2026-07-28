@@ -73,6 +73,9 @@ model Member {
   presencas      Presenca[]
   user           User?
   classificados  Classificado[]
+  posts          Post[]
+  comentarios    Comentario[]
+  reacoes        Reacao[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -130,6 +133,72 @@ enum CategoriaClassificado {
   PRODUTO
   OPORTUNIDADE
   PROCURA
+}
+
+// ─── Feed / Posts ─────────────────────────────────────────────────────────────
+
+model Post {
+  id          String                 @id @default(cuid())
+  memberId    String
+  tipo        PostTipo               @default(FEED)
+  texto       String                 @db.Text
+  imagens     String[]
+  titulo      String?
+  categoria   CategoriaClassificado?
+  contato     String?
+  expiresAt   DateTime?
+  ativo       Boolean                @default(true)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  member      Member                 @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  comentarios Comentario[]
+  reacoes     Reacao[]
+
+  @@index([memberId])
+  @@index([tipo])
+  @@index([ativo])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+model Comentario {
+  id        String   @id @default(cuid())
+  postId    String
+  memberId  String
+  texto     String   @db.Text
+  imagens   String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reacoes   Reacao[]
+
+  @@index([postId])
+  @@index([memberId])
+  @@map("comentarios")
+}
+
+model Reacao {
+  id           String      @id @default(cuid())
+  emoji        String
+  memberId     String
+  postId       String?
+  comentarioId String?
+  createdAt    DateTime    @default(now())
+  member       Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  post         Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comentario   Comentario? @relation(fields: [comentarioId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, postId, emoji])
+  @@unique([memberId, comentarioId, emoji])
+  @@index([postId])
+  @@index([comentarioId])
+  @@map("reacoes")
+}
+
+enum PostTipo {
+  FEED
+  CLASSIFICADO
 }
 
 // ─── Frases ───────────────────────────────────────────────────────────────────

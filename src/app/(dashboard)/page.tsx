@@ -57,6 +57,8 @@ const TIPO_CONFIG = {
 export default async function DashboardPage() {
   const session = await auth()
   if (!session) redirect("/login")
+  const sessionUser = session.user as any
+  if (sessionUser?.role === "MEMBRO") redirect("/feed")
 
   const currentYear = new Date().getFullYear()
   const yearStart = new Date(`${currentYear}-01-01`)

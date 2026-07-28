@@ -63,7 +63,18 @@
       "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://loja-atibaia-kvl0qj0h1-creative-data-projects.vercel.app/login\")",
       "mcp__claude_ai_Vercel__search_vercel_documentation",
       "Bash(npm uninstall *)",
-      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://loja-atibaia-l10dcw02r-creative-data-projects.vercel.app/login\")"
+      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://loja-atibaia-l10dcw02r-creative-data-projects.vercel.app/login\")",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\schemas.js\" -Pattern \"did not match|expected pattern|Invalid email|format\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\api.js\" -Pattern \"did not match|expected pattern|invalid_format|email\" | Select-Object -First 30 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\schemas.js\" -Pattern \"invalid_format|The string\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\errors.js\" -Pattern \"did not match|expected pattern|string\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\checks.js\" -Pattern \"did not match|expected pattern|invalid_format\" | Select-Object -First 30 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\parse.js\" -Pattern \"did not match|expected pattern|message\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\errors.js\" -Pattern \"invalid_format\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\core.js\" -Pattern \"invalid_format|message|did not\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Select-String -Path \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\classic\\\\schemas.js\" -Pattern \"message|invalid_format\" | Where-Object { $_.Line -match \"message\" } | Select-Object -First 30 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Get-Content \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\classic\\\\schemas.js\" | Select-String \"invalid_format|message|defaultError\" | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell($content = Get-Content \"d:\\\\dev\\\\helder-loja\\\\loja-atibaia\\\\node_modules\\\\zod\\\\v4\\\\core\\\\checks.js\" -Raw; $idx = $content.IndexOf\\(\"ZodCheckStringFormat\"\\); $content.Substring\\([Math]::Max\\(0,$idx-100\\), 2000\\))"
     ]
   }
 }
