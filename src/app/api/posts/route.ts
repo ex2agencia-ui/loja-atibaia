@@ -47,26 +47,35 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  try {
+    const session = await auth()
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-  const user = session.user as any
-  if (!user?.memberId) return NextResponse.json({ error: "Apenas membros podem publicar" }, { status: 403 })
+    const user = session.user as any
+    if (!user?.memberId) return NextResponse.json({ error: "Apenas membros podem publicar" }, { status: 403 })
 
-  const body = await req.json()
-  const parsed = createSchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    const body = await req.json()
+    const parsed = createSchema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { expiresAt, ...data } = parsed.data
+    const { expiresAt, ...data } = parsed.data
 
-  const post = await prisma.post.create({
-    data: {
-      ...data,
-      memberId: user.memberId,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-    },
-    include: POST_INCLUDE,
-  })
+    const created = await prisma.post.create({
+      data: {
+        ...data,
+        memberId: user.memberId,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      },
+    })
 
-  return NextResponse.json(post, { status: 201 })
+    const post = await prisma.post.findUnique({
+      where: { id: created.id },
+      include: POST_INCLUDE,
+    })
+
+    return NextResponse.json(post, { status: 201 })
+  } catch (e) {
+    console.error("POST /api/posts error:", e)
+    return NextResponse.json({ error: String(e) }, { status: 500 })
+  }
 }

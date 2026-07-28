@@ -48,8 +48,11 @@ export function PostComposer({ onCreated, defaultAnuncio = false, membroNome }: 
         }),
       })
       if (!res.ok) {
-        const d = await res.json()
-        toast.error(d.error?.formErrors?.[0] ?? "Erro ao publicar")
+        const text = await res.text()
+        let msg = "Erro ao publicar"
+        try { const d = JSON.parse(text); msg = d.error?.formErrors?.[0] ?? d.error ?? msg } catch {}
+        console.error("POST /api/posts error:", res.status, text)
+        toast.error(msg)
         return
       }
       const post = await res.json()

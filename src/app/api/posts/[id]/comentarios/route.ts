@@ -38,9 +38,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const parsed = createSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const comentario = await prisma.comentario.create({
+  const created = await prisma.comentario.create({
     data: { ...parsed.data, postId, memberId: user.memberId },
-    include: INCLUDE,
   })
+  const comentario = await prisma.comentario.findUnique({ where: { id: created.id }, include: INCLUDE })
   return NextResponse.json(comentario, { status: 201 })
 }
