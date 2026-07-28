@@ -6,6 +6,8 @@ import { Phone, Pencil } from "lucide-react"
 import { formatarData } from "@/lib/utils/format"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { CriarContaDialog } from "./acesso-sistema-card"
+import { useQueryClient } from "@tanstack/react-query"
 
 const POSICAO_LABEL: Record<string, string> = { MI: "M.I.", CM: "Comp.", MM: "Mestre", AM: "Aprendiz" }
 const POSICAO_COLOR: Record<string, string> = {
@@ -43,7 +45,13 @@ interface Member {
   user?: { role: string } | null
 }
 
-export function MemberTable({ members }: { members: Member[] }) {
+export function MemberTable({ members, isAdmin }: { members: Member[]; isAdmin?: boolean }) {
+  const qc = useQueryClient()
+
+  function onAccountCreated() {
+    qc.invalidateQueries({ queryKey: ["members"] })
+  }
+
   return (
     <>
       {/* Desktop table */}
@@ -91,6 +99,13 @@ export function MemberTable({ members }: { members: Member[] }) {
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ROLE_COLOR[m.user.role] ?? "bg-slate-100 text-slate-600"}`}>
                       {ROLE_LABELS[m.user.role] ?? m.user.role}
                     </span>
+                  ) : isAdmin ? (
+                    <CriarContaDialog
+                      memberId={m.id}
+                      membroNome={m.nome}
+                      membroEmail={m.email}
+                      onCreated={onAccountCreated}
+                    />
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
@@ -116,9 +131,16 @@ export function MemberTable({ members }: { members: Member[] }) {
                   <div className="font-medium">{m.nome}</div>
                   <div className="text-xs text-muted-foreground font-mono">{m.cim}</div>
                 </div>
-                <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${POSICAO_COLOR[m.posicao]}`}>
-                  {m.posicao}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {m.user?.role ? (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ROLE_COLOR[m.user.role] ?? "bg-slate-100 text-slate-600"}`}>
+                      {ROLE_LABELS[m.user.role] ?? m.user.role}
+                    </span>
+                  ) : null}
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${POSICAO_COLOR[m.posicao]}`}>
+                    {m.posicao}
+                  </span>
+                </div>
               </div>
               {m.telefone && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">

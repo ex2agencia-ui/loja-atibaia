@@ -33,6 +33,12 @@ export default function MembrosPage() {
     queryFn: () => fetch(`/api/membros?${params}`).then((r) => r.json()),
   })
 
+  const { data: meData } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => fetch("/api/me").then((r) => r.json()),
+    staleTime: 60_000,
+  })
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleExport() {
     const members = data?.members ?? []
@@ -206,7 +212,7 @@ export default function MembrosPage() {
           ))}
         </div>
       ) : (
-        <MemberTable members={data?.members ?? []} />
+        <MemberTable members={data?.members ?? []} isAdmin={meData?.role === "ADMIN"} />
       )}
     </div>
   )

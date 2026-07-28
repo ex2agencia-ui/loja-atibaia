@@ -90,7 +90,7 @@ function EditarRoleDialog({ usuario, onSaved }: { usuario: UsuarioVinculado; onS
   )
 }
 
-function CriarContaDialog({ memberId, membroNome, membroEmail, onCreated }: {
+export function CriarContaDialog({ memberId, membroNome, membroEmail, onCreated }: {
   memberId: string
   membroNome: string
   membroEmail?: string | null
