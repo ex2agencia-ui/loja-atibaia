@@ -23,7 +23,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const member = await prisma.member.findUnique({
     where: { id },
-    include: { filhos: { orderBy: { dataNascimento: "asc" } } },
+    include: {
+      filhos: { orderBy: { dataNascimento: "asc" } },
+      user: { select: { id: true, email: true, role: true, mustChangePassword: true } },
+    },
   })
   if (!member) return NextResponse.json({ error: "Não encontrado" }, { status: 404 })
   return NextResponse.json(member)

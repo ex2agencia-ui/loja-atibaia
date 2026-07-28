@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, UserCog, User } from "lucide-react"
+import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User } from "lucide-react"
 
 type NavItem = {
   href: string
@@ -20,7 +20,6 @@ const allNav: NavItem[] = [
   { href: "/aniversarios", label: "Aniversários", icon: Cake, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
   { href: "/frases", label: "Frases", icon: Quote, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA"] },
   { href: "/relatorios/presenca", label: "Relatórios", icon: BarChart3, roles: ["ADMIN", "SECRETARIO", "FINANCEIRO"] },
-  { href: "/usuarios", label: "Usuários", icon: UserCog, roles: ["ADMIN"] },
 ]
 
 export function Sidebar({ role }: { role?: string }) {

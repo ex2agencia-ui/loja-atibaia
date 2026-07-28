@@ -4,6 +4,7 @@ import { useState, use } from "react"
 import { useRouter } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { MemberForm } from "@/components/membros/member-form"
+import { AcessoSistemaCard } from "@/components/membros/acesso-sistema-card"
 import { MemberFormData } from "@/lib/validations/member"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -26,6 +27,13 @@ export default function EditarMembroPage({ params }: { params: Promise<{ id: str
   const { data: member, isLoading } = useQuery({
     queryKey: ["member", id],
     queryFn: () => fetch(`/api/membros/${id}`).then((r) => r.json()),
+  })
+
+  // Busca role do usuário logado para saber se é ADMIN
+  const { data: meData } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => fetch("/api/me").then((r) => r.json()),
+    staleTime: 60_000,
   })
 
   async function handleSubmit(data: MemberFormData) {
@@ -110,6 +118,14 @@ export default function EditarMembroPage({ params }: { params: Promise<{ id: str
         </AlertDialog>
       </div>
       <MemberForm defaultValues={defaultValues} onSubmit={handleSubmit} loading={loading} />
+
+      <AcessoSistemaCard
+        memberId={id}
+        membroNome={member.nome}
+        usuario={member.user ?? null}
+        isAdmin={meData?.role === "ADMIN"}
+        onRefresh={() => qc.invalidateQueries({ queryKey: ["member", id] })}
+      />
     </div>
   )
 }
