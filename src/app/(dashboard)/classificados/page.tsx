@@ -6,24 +6,17 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Search, Plus, Briefcase, ShoppingBag, Handshake, SearchIcon, Phone, Mail, Globe, Building2, Pencil, Trash2 } from "lucide-react"
+import { Search, Plus, Briefcase, Phone, Mail, Building2, Trash2 } from "lucide-react"
 import { NovoClassificadoDialog } from "@/components/classificados/novo-classificado-dialog"
-import { useQuery as useMe } from "@tanstack/react-query"
+import { CATEGORIA_CONFIG, CategoriaKey } from "@/components/classificados/categoria-config"
 import { toast } from "sonner"
 import { formatarData } from "@/lib/utils/format"
-
-export const CATEGORIA_CONFIG = {
-  SERVICO:      { label: "Serviço",      icon: Briefcase,  color: "bg-blue-100 text-blue-700 border-blue-200" },
-  PRODUTO:      { label: "Produto",      icon: ShoppingBag, color: "bg-green-100 text-green-700 border-green-200" },
-  OPORTUNIDADE: { label: "Oportunidade", icon: Handshake,  color: "bg-amber-100 text-amber-700 border-amber-200" },
-  PROCURA:      { label: "Procura",      icon: SearchIcon, color: "bg-purple-100 text-purple-700 border-purple-200" },
-}
 
 type Classificado = {
   id: string
   titulo: string
   descricao: string
-  categoria: keyof typeof CATEGORIA_CONFIG
+  categoria: CategoriaKey
   contato: string | null
   expiresAt: string | null
   createdAt: string

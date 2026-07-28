@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Loader2, Plus } from "lucide-react"
-import { CATEGORIA_CONFIG } from "@/app/(dashboard)/classificados/page"
+import { CATEGORIA_CONFIG } from "@/components/classificados/categoria-config"
 
 const CATEGORIAS = Object.entries(CATEGORIA_CONFIG).map(([value, cfg]) => ({ value, label: cfg.label }))
 
