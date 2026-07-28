@@ -144,7 +144,7 @@ export default function ClassificadosPage() {
   const [tab, setTab] = useState<"anuncios" | "profissionais">("anuncios")
   const qc = useQueryClient()
 
-  const { data: me } = useMe({
+  const { data: me } = useQuery({
     queryKey: ["me"],
     queryFn: () => fetch("/api/me").then(r => r.json()),
     staleTime: 60_000,
