@@ -15,6 +15,21 @@ const POSICAO_COLOR: Record<string, string> = {
   AM: "bg-yellow-100 text-yellow-800",
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  ADMIN: "Admin",
+  SECRETARIO: "Secretário",
+  CHANCELARIA: "Chancelaria",
+  FINANCEIRO: "Financeiro",
+  MEMBRO: "Membro",
+}
+const ROLE_COLOR: Record<string, string> = {
+  ADMIN: "bg-red-100 text-red-700",
+  SECRETARIO: "bg-indigo-100 text-indigo-700",
+  CHANCELARIA: "bg-violet-100 text-violet-700",
+  FINANCEIRO: "bg-emerald-100 text-emerald-700",
+  MEMBRO: "bg-slate-100 text-slate-600",
+}
+
 interface Member {
   id: string
   cim: string
@@ -25,6 +40,7 @@ interface Member {
   telefone: string | null
   isWhatsapp: boolean
   email: string | null
+  user?: { role: string } | null
 }
 
 export function MemberTable({ members }: { members: Member[] }) {
@@ -41,6 +57,7 @@ export function MemberTable({ members }: { members: Member[] }) {
               <th className="text-left px-4 py-3 font-medium">Situação</th>
               <th className="text-left px-4 py-3 font-medium">Nascimento</th>
               <th className="text-left px-4 py-3 font-medium">Contato</th>
+              <th className="text-left px-4 py-3 font-medium">Acesso</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -67,6 +84,15 @@ export function MemberTable({ members }: { members: Member[] }) {
                       {m.telefone}
                       {m.isWhatsapp && <span className="text-green-600 font-medium">W</span>}
                     </div>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {m.user?.role ? (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ROLE_COLOR[m.user.role] ?? "bg-slate-100 text-slate-600"}`}>
+                      {ROLE_LABELS[m.user.role] ?? m.user.role}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3">

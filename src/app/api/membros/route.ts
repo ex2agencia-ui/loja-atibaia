@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
     prisma.member.count({ where }),
     prisma.member.findMany({
       where,
-      include: { filhos: true },
+      include: {
+        filhos: true,
+        user: { select: { role: true } },
+      },
       orderBy: [{ posicao: "asc" }, { nome: "asc" }],
       skip: (page - 1) * limit,
       take: limit,
