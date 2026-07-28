@@ -103,6 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const u = session.user as any
+        u.id = token.sub as string
         u.role = token.role as string
         u.memberId = token.memberId as string | null
         u.mustChangePassword = token.mustChangePassword as boolean
