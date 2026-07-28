@@ -60,6 +60,10 @@ model Member {
   email         String?
   ocupacao      String?
   notasOcupacao String? @db.Text
+  empresa       String?
+  ramoAtuacao   String?
+  site          String?
+  linkedin      String?
 
   conjuge           String?
   nascimentoConjuge DateTime?
