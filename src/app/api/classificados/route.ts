@@ -65,7 +65,6 @@ export async function POST(req: NextRequest) {
       contato: contato ?? null,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
     },
-    include: { member: { select: { nome: true } } },
   })
 
   return NextResponse.json(classificado, { status: 201 })
