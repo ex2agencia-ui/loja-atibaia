@@ -77,17 +77,25 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       dataInstalacao: dataInstalacao ? new Date(dataInstalacao) : null,
       dataRegulFiliacao: dataRegulFiliacao ? new Date(dataRegulFiliacao) : null,
       nascimentoConjuge: nascimentoConjuge ? new Date(nascimentoConjuge) : null,
-      filhos: {
-        create: filhos.map((f) => ({
-          nome: f.nome,
-          dataNascimento: f.dataNascimento ? new Date(f.dataNascimento) : null,
-        })),
-      },
     },
+  })
+
+  if (filhos.length > 0) {
+    await prisma.filho.createMany({
+      data: filhos.map((f) => ({
+        memberId: id,
+        nome: f.nome,
+        dataNascimento: f.dataNascimento ? new Date(f.dataNascimento) : null,
+      })),
+    })
+  }
+
+  const result = await prisma.member.findUnique({
+    where: { id },
     include: { filhos: true },
   })
 
-  return NextResponse.json(member)
+  return NextResponse.json(result)
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
