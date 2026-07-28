@@ -58,12 +58,13 @@ export default function TrocarSenhaPage() {
       }
 
       toast.success("Senha alterada com sucesso")
-      // Atualiza sessão para limpar mustChangePassword
-      await update({ mustChangePassword: false })
-
+      // Força re-leitura do token no banco (trigger jwt callback sem user arg)
+      await update({})
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const role = (session?.user as any)?.role as string
-      router.push(role === "MEMBRO" ? "/perfil" : "/")
+      // Pequeno delay para o cookie ser re-emitido antes da navegação
+      await new Promise(r => setTimeout(r, 300))
+      router.push(role === "MEMBRO" ? "/feed" : "/")
     } catch {
       toast.error("Erro ao trocar senha")
     } finally {
