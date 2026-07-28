@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Search, Plus, Briefcase, Phone, Mail, Building2, Trash2 } from "lucide-react"
+import { Search, Plus, Briefcase, Phone, Mail, Building2, Trash2, Globe, MapPin, MessageCircle, ExternalLink } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NovoClassificadoDialog } from "@/components/classificados/novo-classificado-dialog"
 import { CATEGORIA_CONFIG, CategoriaKey } from "@/components/classificados/categoria-config"
 import { toast } from "sonner"
@@ -96,43 +97,154 @@ function ClassificadoCard({ item, memberId, isPrivileged, onDelete }: {
   )
 }
 
-function PerfilCard({ member }: { member: Classificado["member"] }) {
+type MembroProfissional = {
+  id: string
+  nome: string
+  ocupacao: string | null
+  empresa: string | null
+  ramoAtuacao: string | null
+  site: string | null
+  linkedin: string | null
+  telefone: string | null
+  isWhatsapp: boolean
+  email: string | null
+  notasOcupacao: string | null
+  cidade: string | null
+  bairro: string | null
+}
+
+function Initials({ nome }: { nome: string }) {
   return (
-    <Card>
-      <CardContent className="p-5 space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-semibold text-sm shrink-0">
-            {member.nome.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase()}
+    <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-semibold text-sm shrink-0">
+      {nome.split(" ").map(p => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase()}
+    </div>
+  )
+}
+
+function PerfilDetalheDialog({ member, open, onClose }: { member: MembroProfissional; open: boolean; onClose: () => void }) {
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="sr-only">Perfil profissional</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-5">
+          {/* Cabeçalho */}
+          <div className="flex items-center gap-4">
+            <Initials nome={member.nome} />
+            <div>
+              <div className="font-semibold text-base leading-tight">{member.nome}</div>
+              {member.ocupacao && <div className="text-sm text-muted-foreground">{member.ocupacao}</div>}
+              {member.cidade && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                  <MapPin className="h-3 w-3" />{member.cidade}{member.bairro ? ` · ${member.bairro}` : ""}
+                </div>
+              )}
+            </div>
           </div>
-          <div>
-            <div className="font-semibold text-sm">{member.nome}</div>
-            {member.ocupacao && <div className="text-xs text-muted-foreground">{member.ocupacao}</div>}
+
+          {/* Empresa */}
+          {(member.empresa || member.ramoAtuacao) && (
+            <div className="rounded-lg border bg-muted/40 p-3 space-y-1.5">
+              {member.empresa && (
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                  {member.empresa}
+                </div>
+              )}
+              {member.ramoAtuacao && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Briefcase className="h-4 w-4 shrink-0" />
+                  {member.ramoAtuacao}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Notas */}
+          {member.notasOcupacao && (
+            <p className="text-sm text-muted-foreground">{member.notasOcupacao}</p>
+          )}
+
+          {/* Contato */}
+          <div className="space-y-2">
+            {member.telefone && (
+              <a href={member.isWhatsapp ? `https://wa.me/55${member.telefone.replace(/\D/g, "")}` : `tel:${member.telefone}`}
+                target={member.isWhatsapp ? "_blank" : undefined}
+                className="flex items-center gap-2 text-sm hover:text-indigo-600 transition-colors">
+                {member.isWhatsapp
+                  ? <MessageCircle className="h-4 w-4 text-green-500 shrink-0" />
+                  : <Phone className="h-4 w-4 text-muted-foreground shrink-0" />}
+                {member.telefone}
+                {member.isWhatsapp && <span className="text-xs text-green-600">WhatsApp</span>}
+              </a>
+            )}
+            {member.email && (
+              <a href={`mailto:${member.email}`} className="flex items-center gap-2 text-sm hover:text-indigo-600 transition-colors">
+                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                {member.email}
+              </a>
+            )}
+            {member.site && (
+              <a href={member.site} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-indigo-600 transition-colors">
+                <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+                {member.site.replace(/^https?:\/\//, "")}
+              </a>
+            )}
+            {member.linkedin && (
+              <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-indigo-600 transition-colors">
+                <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+                LinkedIn
+              </a>
+            )}
           </div>
         </div>
-        {member.empresa && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Building2 className="h-3.5 w-3.5 shrink-0" />
-            {member.empresa}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function PerfilCard({ member }: { member: MembroProfissional }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setOpen(true)}>
+        <CardContent className="p-5 space-y-2">
+          <div className="flex items-center gap-3">
+            <Initials nome={member.nome} />
+            <div className="min-w-0">
+              <div className="font-semibold text-sm leading-tight truncate">{member.nome}</div>
+              {member.ocupacao && <div className="text-xs text-muted-foreground truncate">{member.ocupacao}</div>}
+            </div>
           </div>
-        )}
-        {member.ramoAtuacao && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Briefcase className="h-3.5 w-3.5 shrink-0" />
-            {member.ramoAtuacao}
+          {member.empresa && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Building2 className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{member.empresa}</span>
+            </div>
+          )}
+          {member.ramoAtuacao && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Briefcase className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{member.ramoAtuacao}</span>
+            </div>
+          )}
+          <div className="flex gap-3 pt-1">
+            {member.telefone && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                {member.isWhatsapp ? <MessageCircle className="h-3.5 w-3.5 text-green-500" /> : <Phone className="h-3.5 w-3.5" />}
+                {member.telefone}
+              </span>
+            )}
+            {member.email && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                <Mail className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{member.email}</span>
+              </span>
+            )}
           </div>
-        )}
-        {member.telefone && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Phone className="h-3.5 w-3.5 shrink-0" />{member.telefone}
-          </div>
-        )}
-        {member.email && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Mail className="h-3.5 w-3.5 shrink-0" />{member.email}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          <div className="text-xs text-indigo-600 font-medium pt-0.5">Ver detalhes →</div>
+        </CardContent>
+      </Card>
+      <PerfilDetalheDialog member={member} open={open} onClose={() => setOpen(false)} />
+    </>
   )
 }
 
@@ -272,7 +384,7 @@ export default function ClassificadosPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {membrosProf.map((m: any) => (
+            {membrosProf.map((m: MembroProfissional) => (
               <PerfilCard key={m.id} member={m} />
             ))}
           </div>
