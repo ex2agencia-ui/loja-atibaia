@@ -122,6 +122,7 @@ export default function EditarMembroPage({ params }: { params: Promise<{ id: str
       <AcessoSistemaCard
         memberId={id}
         membroNome={member.nome}
+        membroEmail={member.email ?? null}
         usuario={member.user ?? null}
         isAdmin={meData?.role === "ADMIN"}
         onRefresh={() => qc.invalidateQueries({ queryKey: ["member", id] })}
