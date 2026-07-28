@@ -30,7 +30,7 @@ export function Header({ user }: Props) {
   const router = useRouter()
 
   return (
-    <header className="h-14 bg-black border-b border-neutral-800 flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
+    <header className="h-14 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-4 md:px-6 shrink-0 z-10 shadow-sm">
       <Link href="/" className="flex items-center gap-2.5">
         <div className="h-9 w-9 rounded-full overflow-hidden shrink-0 bg-white/10">
           <Image src="/logo.png" alt="Logo" width={36} height={36} className="object-cover w-full h-full" />

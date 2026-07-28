@@ -32,20 +32,20 @@ export function Sidebar({ role }: { role?: string }) {
   })
 
   return (
-    <aside className="hidden md:flex flex-col w-56 bg-slate-900 text-slate-100 shrink-0">
-      <nav className="flex-1 px-3 py-4 space-y-1">
+    <aside className="hidden md:flex flex-col w-56 bg-slate-800 text-slate-100 shrink-0">
+      <nav className="flex-1 px-3 py-5 space-y-0.5">
         {nav.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
               pathname === href || (href !== "/" && pathname.startsWith(href))
-                ? "bg-amber-600 text-white"
-                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "text-slate-300 hover:bg-slate-700 hover:text-white"
             )}
           >
-            <Icon className="h-4 w-4 shrink-0" />
+            <Icon className="h-4 w-4 shrink-0 opacity-80" />
             {label}
           </Link>
         ))}
