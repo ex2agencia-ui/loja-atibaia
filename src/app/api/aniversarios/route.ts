@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth"
 
 function parseBRDate(value: string | null | undefined): Date | null {
   if (!value) return null
-  const match = value.trim().match(/^\s*(\d{2})\/(\d{2})\/(\d{4})\s*$/)
+  const match = value.trim().match(/^\s*(\d{2})[\/\-](\d{2})[\/\-](\d{4})\s*$/)
   if (!match) return null
   const [, day, month, year] = match
   return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
