@@ -23,7 +23,7 @@ const TIPO_LABEL: Record<string, string> = { ORDINARIA: "Ordinária", MAGNA: "Ma
 
 export function CheckinModal({ sessionId, checkInToken, checkInAberto, onToggle, sessaoData, sessaoTipo }: Props) {
   const [toggling, setToggling] = useState(false)
-  const url = `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/checkin/${checkInToken}`
+  const url = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/checkin/${checkInToken}`
 
   const dataFormatada = sessaoData
     ? new Date(sessaoData).toLocaleDateString("pt-BR", { timeZone: "UTC", weekday: "long", day: "2-digit", month: "long", year: "numeric" })
