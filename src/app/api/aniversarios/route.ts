@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 
+// Aceita DD/MM/YYYY e DD-MM-YYYY (dataCasamento é armazenado com traço no banco)
 function parseBRDate(value: string | null | undefined): Date | null {
   if (!value) return null
-  const match = value.trim().match(/^\s*(\d{2})[\/\-](\d{2})[\/\-](\d{4})\s*$/)
+  const match = value.trim().match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/)
   if (!match) return null
   const [, day, month, year] = match
   return new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
