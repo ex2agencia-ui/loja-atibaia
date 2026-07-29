@@ -266,9 +266,11 @@ model LojaSession {
   data      DateTime
   descricao String?
   tipo      SessionTipo @default(ORDINARIA)
-  fotoUrl   String?
-  fotoKey   String?
-  presencas Presenca[]
+  fotoUrl       String?
+  fotoKey       String?
+  checkInToken  String?  @unique
+  checkInAberto Boolean  @default(false)
+  presencas     Presenca[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

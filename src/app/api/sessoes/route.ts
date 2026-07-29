@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       data: new Date(parsed.data.data),
       descricao: parsed.data.descricao ?? null,
       tipo: (parsed.data.tipo ?? "ORDINARIA") as SessionTipo,
+      checkInToken: crypto.randomUUID(),
     },
   })
 

@@ -42,6 +42,20 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json(lojaSession)
 }
 
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+  const { id } = await params
+  const body = await req.json()
+
+  const lojaSession = await prisma.lojaSession.update({
+    where: { id },
+    data: { checkInAberto: body.checkInAberto },
+  })
+  return NextResponse.json(lojaSession)
+}
+
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })

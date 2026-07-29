@@ -3,6 +3,7 @@
 import { use, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AttendanceTable } from "@/components/sessoes/attendance-table"
+import { CheckinModal } from "@/components/sessoes/checkin-modal"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -10,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import Link from "next/link"
-import { ChevronLeft, Trash2, Camera, X, Pencil, Check } from "lucide-react"
+import { ChevronLeft, Trash2, Camera, X, Pencil, Check, Users } from "lucide-react"
 import { formatarData } from "@/lib/utils/format"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -36,15 +37,18 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
   const [editingDesc, setEditingDesc] = useState(false)
   const [descText, setDescText] = useState("")
   const [savingDesc, setSavingDesc] = useState(false)
+  const [checkInAberto, setCheckInAberto] = useState(false)
 
   const { data: session, isLoading: loadingSession } = useQuery({
     queryKey: ["session", id],
     queryFn: () => fetch(`/api/sessoes/${id}`).then((r) => r.json()),
+    select: (data) => { setCheckInAberto(data.checkInAberto); return data },
   })
 
   const { data: presencas, isLoading: loadingPresencas, refetch: refetchPresencas } = useQuery({
     queryKey: ["presencas", id],
     queryFn: () => fetch(`/api/sessoes/${id}/presenca`).then((r) => r.json()),
+    refetchInterval: 10_000,
   })
 
   function handleStartEdit() {
@@ -191,6 +195,32 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        )}
+      </div>
+
+      {/* Quórum + QR */}
+      <div className="flex flex-wrap items-center gap-3">
+        {presencas && (() => {
+          const total = presencas.length
+          const presentes = presencas.filter((p: { presenca?: { status: string } }) => p.presenca?.status === "P").length
+          const pct = total > 0 ? Math.round((presentes / total) * 100) : 0
+          const quorum = total > 0 && presentes >= Math.ceil(total / 3)
+          const cor = quorum ? "text-green-600" : presentes >= Math.ceil(total / 4) ? "text-amber-600" : "text-red-600"
+          return (
+            <div className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium", cor)}>
+              <Users className="h-4 w-4" />
+              {presentes} / {total} presentes ({pct}%)
+              {quorum && <Badge className="bg-green-600 text-white text-xs ml-1">Quórum ✓</Badge>}
+            </div>
+          )
+        })()}
+        {session?.checkInToken && (
+          <CheckinModal
+            sessionId={id}
+            checkInToken={session.checkInToken}
+            checkInAberto={checkInAberto}
+            onToggle={setCheckInAberto}
+          />
         )}
       </div>
 
