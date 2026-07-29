@@ -176,25 +176,23 @@ export default function AniversariosPage() {
             return (
               <Card key={i}>
                 <CardContent className="py-4">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center shrink-0">
                         <Icon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-medium truncate">{a.nome}</div>
+                        <div className="font-medium break-words">{a.nome}</div>
                         {a.contexto && (
-                          <div className="text-xs text-muted-foreground truncate">
+                          <div className="text-xs text-muted-foreground break-words">
                             {a.tipo === "CONJUGE" ? "Cônjuge de" : "Filho/a de"} {a.contexto}
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="text-right">
-                        <div className="text-sm font-medium capitalize">{diaMes}</div>
-                        <div className="text-xs text-muted-foreground">{a.idade} anos</div>
-                      </div>
+                    <div className="flex items-center gap-3 sm:shrink-0 pl-13 sm:pl-0">
+                      <div className="text-sm font-medium capitalize">{diaMes}</div>
+                      <div className="text-xs text-muted-foreground">{a.idade} anos</div>
                       <Badge className={cfg.color}>{cfg.label}</Badge>
                     </div>
                   </div>

@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake } from "lucide-react"
+import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, ScanLine } from "lucide-react"
 
 const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/membros", label: "Irmãos", icon: Users },
   { href: "/sessoes", label: "Sessões", icon: CalendarDays },
   { href: "/aniversarios", label: "Aniversários", icon: Cake },
+  { href: "/checkin", label: "Check-in", icon: ScanLine },
   { href: "/relatorios/presenca", label: "Relatório", icon: BarChart3 },
 ]
 
