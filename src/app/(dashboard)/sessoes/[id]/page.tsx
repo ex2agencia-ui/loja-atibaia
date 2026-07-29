@@ -37,13 +37,14 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
   const [editingDesc, setEditingDesc] = useState(false)
   const [descText, setDescText] = useState("")
   const [savingDesc, setSavingDesc] = useState(false)
-  const [checkInAberto, setCheckInAberto] = useState(false)
+  const [checkInAbertoOverride, setCheckInAbertoOverride] = useState<boolean | null>(null)
 
   const { data: session, isLoading: loadingSession } = useQuery({
     queryKey: ["session", id],
     queryFn: () => fetch(`/api/sessoes/${id}`).then((r) => r.json()),
-    select: (data) => { setCheckInAberto(data.checkInAberto); return data },
   })
+
+  const checkInAberto = checkInAbertoOverride ?? session?.checkInAberto ?? false
 
   const { data: presencas, isLoading: loadingPresencas, refetch: refetchPresencas } = useQuery({
     queryKey: ["presencas", id],
@@ -219,7 +220,7 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
             sessionId={id}
             checkInToken={session.checkInToken}
             checkInAberto={checkInAberto}
-            onToggle={setCheckInAberto}
+            onToggle={setCheckInAbertoOverride}
           />
         )}
       </div>
