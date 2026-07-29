@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User, Briefcase, Newspaper, Bell } from "lucide-react"
+import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User, Briefcase, Newspaper, Bell, Wallet, Settings, Plug, MessageSquare } from "lucide-react"
 
 type NavItem = {
   href: string
@@ -25,6 +25,10 @@ const allNav: NavItem[] = [
   { href: "/frases", label: "Frases", icon: Quote, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA"] },
   { href: "/classificados", label: "Classificados", icon: Briefcase },
   { href: "/relatorios/presenca", label: "Relatórios", icon: BarChart3, roles: ["ADMIN", "SECRETARIO", "FINANCEIRO"] },
+  { href: "/financeiro", label: "Financeiro", icon: Wallet, roles: ["ADMIN", "FINANCEIRO"] },
+  { href: "/admin/config", label: "Configurações", icon: Settings, roles: ["ADMIN"] },
+  { href: "/admin/integracoes", label: "Integrações", icon: Plug, roles: ["ADMIN"] },
+  { href: "/admin/mensageria", label: "Mensageria", icon: MessageSquare, roles: ["ADMIN"] },
 ]
 
 export function Sidebar({ role }: { role?: string }) {

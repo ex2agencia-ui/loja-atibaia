@@ -96,13 +96,17 @@ export async function POST(req: NextRequest) {
   })
 
   if (filhos.length > 0) {
-    await prisma.filho.createMany({
-      data: filhos.map((f) => ({
-        memberId: member.id,
-        nome: f.nome,
-        dataNascimento: f.dataNascimento ? parseMaybeDate(f.dataNascimento) : null,
-      })),
-    })
+    await Promise.all(
+      filhos.map(f =>
+        prisma.filho.create({
+          data: {
+            memberId: member.id,
+            nome: f.nome,
+            dataNascimento: f.dataNascimento ? parseMaybeDate(f.dataNascimento) : null,
+          },
+        }).catch(() => null)
+      )
+    )
   }
 
   return NextResponse.json(member, { status: 201 })

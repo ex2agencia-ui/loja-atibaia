@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 import { PostComposer } from "@/components/feed/post-composer"
 import { PostCard, Post } from "@/components/feed/post-card"
+import { BannerInadimplente } from "@/components/feed/banner-inadimplente"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -96,6 +97,11 @@ export default function FeedPage() {
         <h1 className="text-2xl font-bold tracking-tight">Mural</h1>
         <p className="text-sm text-muted-foreground">Novidades e comunicados da Loja</p>
       </div>
+
+      {/* Banner de inadimplência — só para MEMBRO com pendências */}
+      {hasMembro && me?.role === "MEMBRO" && (
+        <BannerInadimplente memberId={me.memberId} />
+      )}
 
       {hasMembro ? (
         <PostComposer

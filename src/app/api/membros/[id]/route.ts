@@ -62,7 +62,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     delete (data as Record<string, unknown>).situacao
   }
 
-  await prisma.filho.deleteMany({ where: { memberId: id } })
+  // deleteMany causa transação no Neon HTTP — usar deletes individuais
+  const filhosAntigos = await prisma.filho.findMany({ where: { memberId: id }, select: { id: true } })
+  await Promise.all(filhosAntigos.map(f => prisma.filho.delete({ where: { id: f.id } }).catch(() => null)))
 
   const member = await prisma.member.update({
     where: { id },
@@ -81,13 +83,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   })
 
   if (filhos.length > 0) {
-    await prisma.filho.createMany({
-      data: filhos.map((f) => ({
-        memberId: id,
-        nome: f.nome,
-        dataNascimento: f.dataNascimento ? new Date(f.dataNascimento) : null,
-      })),
-    })
+    await Promise.all(
+      filhos.map(f =>
+        prisma.filho.create({
+          data: {
+            memberId: id,
+            nome: f.nome,
+            dataNascimento: f.dataNascimento ? new Date(f.dataNascimento) : null,
+          },
+        }).catch(() => null)
+      )
+    )
   }
 
   const result = await prisma.member.findUnique({

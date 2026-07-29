@@ -6,7 +6,8 @@ export async function GET() {
   const session = await auth()
   if (!session) return NextResponse.json({ count: 0 })
   const user = session.user as any
-  if (!user?.memberId) return NextResponse.json({ count: 0 })
+  const ROLES_ENVIAR = ["ADMIN", "SECRETARIO", "CHANCELARIA"]
+  if (!user?.memberId || ROLES_ENVIAR.includes(user?.role)) return NextResponse.json({ count: 0 })
 
   const count = await prisma.comunicadoDestinatario.count({
     where: { memberId: user.memberId, lidoEm: null },

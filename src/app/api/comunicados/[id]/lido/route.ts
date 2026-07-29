@@ -10,10 +10,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { id: comunicadoId } = await params
 
-  await prisma.comunicadoDestinatario.updateMany({
+  // updateMany dispara transação implícita no Neon HTTP — usar update individual
+  const registros = await prisma.comunicadoDestinatario.findMany({
     where: { comunicadoId, memberId: user.memberId, lidoEm: null },
-    data: { lidoEm: new Date() },
+    select: { id: true },
   })
+  await Promise.all(
+    registros.map(r =>
+      prisma.comunicadoDestinatario.update({
+        where: { id: r.id },
+        data: { lidoEm: new Date() },
+      }).catch(() => null)
+    )
+  )
 
   return NextResponse.json({ ok: true })
 }

@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Loader2, User, Wallet } from "lucide-react"
+import { PerfilFinanceiro } from "./perfil-financeiro"
 
 const perfilSchema = z.object({
   telefone: z.string().optional(),
@@ -28,7 +30,7 @@ const perfilSchema = z.object({
 
 type PerfilData = z.infer<typeof perfilSchema>
 
-export function PerfilForm({ memberId }: { memberId: string | null }) {
+export function PerfilForm({ memberId, defaultTab }: { memberId: string | null; defaultTab?: string }) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -122,6 +124,17 @@ export function PerfilForm({ memberId }: { memberId: string | null }) {
     <div className="p-6 max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Meu Perfil</h1>
 
+      <Tabs defaultValue={defaultTab === "financeiro" ? "financeiro" : "dados"}>
+        <TabsList className="w-full max-w-xs">
+          <TabsTrigger value="dados" className="flex items-center gap-1.5 flex-1">
+            <User className="h-3.5 w-3.5" /> Dados
+          </TabsTrigger>
+          <TabsTrigger value="financeiro" className="flex items-center gap-1.5 flex-1">
+            <Wallet className="h-3.5 w-3.5" /> Financeiro
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dados" className="mt-6">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader><CardTitle>Contato</CardTitle></CardHeader>
@@ -215,6 +228,12 @@ export function PerfilForm({ memberId }: { memberId: string | null }) {
           </Button>
         </div>
       </form>
+        </TabsContent>
+
+        <TabsContent value="financeiro" className="mt-6">
+          <PerfilFinanceiro memberId={memberId} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

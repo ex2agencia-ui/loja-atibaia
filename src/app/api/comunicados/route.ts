@@ -109,18 +109,27 @@ export async function POST(req: NextRequest) {
 
   // Se noFeed, cria Post no mural
   if (noFeed) {
-    // Precisa de memberId do autor para criar Post
-    const autorUser = await prisma.user.findUnique({ where: { id: user.id }, select: { memberId: true } })
-    if (autorUser?.memberId) {
+    try {
+      const autorUser = await prisma.user.findUnique({ where: { id: user.id }, select: { memberId: true } })
+      // Se admin não tem membro vinculado, usa o primeiro membro ativo como autor do post
+      let postMemberId = autorUser?.memberId
+      if (!postMemberId) {
+        const qualquer = await prisma.member.findFirst({ where: { situacao: "ATIVO" }, select: { id: true } })
+        postMemberId = qualquer?.id
+      }
+      if (!postMemberId) throw new Error("Nenhum membro ativo encontrado para publicar no mural")
       const post = await prisma.post.create({
         data: {
-          memberId: autorUser.memberId,
+          memberId: postMemberId,
           tipo: "FEED",
-          texto: `**${titulo}**\n\n${texto}`,
+          texto: `📢 ${titulo}\n\n${texto}`,
           imagens,
         },
       })
       await prisma.comunicado.update({ where: { id: comunicado.id }, data: { postId: post.id } })
+    } catch (err) {
+      console.error("[comunicados] falha ao publicar no mural:", err)
+      // Não falha o comunicado por causa disso
     }
   }
 

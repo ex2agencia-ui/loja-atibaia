@@ -78,6 +78,10 @@ model Member {
   comentarios    Comentario[]
   reacoes        Reacao[]
   comunicadosRecebidos ComunicadoDestinatario[]
+  notificacaoLogs      NotificacaoLog[]
+  notificacaoPreferencias NotificacaoPreferencia[]
+  mensalidades         Mensalidade[]
+  transacoesCaixa      TransacaoCaixa[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -297,6 +301,227 @@ enum SessionTipo {
   ESPECIAL
 }
 
+// ─── Financeiro ───────────────────────────────────────────────────────────────
+
+enum TransacaoStatus {
+  PENDENTE
+  PAGO
+  VENCIDO
+  CANCELADO
+}
+
+enum TransacaoTipo {
+  RECEITA
+  DESPESA
+}
+
+enum CategoriaFinanceira {
+  MENSALIDADE
+  TRONCO_SOLIDARIEDADE
+  TAXA_GRAU
+  DOACAO
+  MANUTENCAO_TEMPLO
+  AGAPE
+  REPASSE_POTENCIA
+  OUTROS
+}
+
+enum GatewayTipo {
+  MANUAL
+  C6BANK
+  CORA
+  ASAAS
+  STRIPE
+  MERCADO_PAGO
+}
+
+enum WhatsAppProvedor {
+  EVOLUTION
+  META
+  EXXOR
+}
+
+enum NotificacaoCanal {
+  EMAIL
+  WHATSAPP
+  COMUNICADO
+}
+
+enum NotificacaoEvento {
+  CONTA_CRIADA
+  SENHA_RESETADA
+  MENSALIDADE_AVISO
+  MENSALIDADE_VENCIDA
+  MENSALIDADE_COBRANCA
+  SESSAO_LEMBRETE
+  ANIVERSARIO
+  COMUNICADO_NOVO
+}
+
+enum NotificacaoStatus {
+  ENVIADO
+  ERRO
+  IGNORADO
+}
+
+model Mensalidade {
+  id          String          @id @default(cuid())
+  memberId    String
+  member      Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  competencia String          // "YYYY-MM" ex: "2026-07"
+
+  valor       Decimal         @db.Decimal(10, 2)
+  desconto    Decimal?        @db.Decimal(10, 2)
+  jurosMulta  Decimal?        @db.Decimal(10, 2)
+  valorTotal  Decimal         @db.Decimal(10, 2)
+
+  vencimento  DateTime
+  pagamento   DateTime?
+
+  status      TransacaoStatus @default(PENDENTE)
+  isento      Boolean         @default(false)
+  observacao  String?         @db.Text
+
+  gateway          GatewayTipo @default(MANUAL)
+  externalId       String?
+  pixQrCode        String?     @db.Text
+  pixCopiaECola    String?     @db.Text
+  boletoUrl        String?
+
+  emailAvisoEm    DateTime?
+  emailVencidoEm  DateTime?
+
+  registradoPorId String?
+
+  logs        MensalidadeLog[]
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([memberId, competencia])
+  @@index([memberId])
+  @@index([competencia])
+  @@index([status])
+  @@map("mensalidades")
+}
+
+model MensalidadeLog {
+  id             String      @id @default(cuid())
+  mensalidadeId  String
+  mensalidade    Mensalidade @relation(fields: [mensalidadeId], references: [id], onDelete: Cascade)
+
+  campo          String      // ex: "valor", "status", "desconto", "isento"
+  valorAntes     String?     // serializado como string para aceitar qualquer tipo
+  valorDepois    String?
+  motivo         String?     @db.Text
+
+  userId         String      // quem fez a alteração
+  createdAt      DateTime    @default(now())
+
+  @@index([mensalidadeId])
+  @@index([createdAt])
+  @@map("mensalidade_logs")
+}
+
+model TransacaoCaixa {
+  id              String              @id @default(cuid())
+  tipo            TransacaoTipo
+  categoria       CategoriaFinanceira
+  descricao       String
+  valor           Decimal             @db.Decimal(10, 2)
+  data            DateTime            @default(now())
+
+  memberId        String?
+  member          Member?             @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  registradoPorId String
+  comprovanteUrl  String?
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([tipo])
+  @@index([categoria])
+  @@index([data])
+  @@map("transacoes_caixa")
+}
+
+model ConfigLoja {
+  id                       String   @id @default("singleton")
+  nome                     String   @default("Loja Maçônica")
+
+  // Financeiro
+  mensalidadeValorPadrao   Decimal  @db.Decimal(10, 2) @default(0)
+  mensalidadeDiaVencimento Int      @default(10)
+  pixChave                 String?
+  pixTipo                  String?  // cpf | cnpj | email | telefone | aleatoria
+  pixBeneficiario          String?
+
+  // SMTP (senha criptografada com AES-256-GCM)
+  smtpHost                 String?
+  smtpPort                 Int?     @default(587)
+  smtpSecure               Boolean  @default(false)
+  smtpUser                 String?
+  smtpPassEncrypted        String?
+  emailRemetente           String?
+  emailNomeRemetente       String?
+
+  // Gateway de pagamento (credenciais criptografadas com AES-256-GCM)
+  gatewayAtivo             GatewayTipo @default(MANUAL)
+  gatewaySandbox           Boolean  @default(true)
+
+  // Asaas
+  asaasApiKeyEncrypted     String?
+
+  // Mercado Pago
+  mercadoPagoTokenEncrypted String?
+
+  // Stripe
+  stripeSecretKeyEncrypted  String?
+  stripeWebhookSecret       String?
+
+  // Cora
+  coraClientId             String?
+  coraClientSecretEncrypted String?
+
+  // C6 Bank
+  c6ClientId               String?
+  c6CertificateEncrypted   String?  @db.Text // certificado .p12 em base64 criptografado
+  c6CertificatePass        String?
+
+  // WhatsApp (provedor e credenciais criptografadas com AES-256-GCM)
+  whatsappAtivo            Boolean  @default(false)
+  whatsappProvedor         String   @default("EVOLUTION")
+
+  // Evolution API (self-hosted)
+  evolutionUrl             String?
+  evolutionApiKeyEncrypted String?
+  evolutionInstance        String?
+
+  // Meta Cloud API (oficial)
+  metaWabaId               String?
+  metaPhoneNumberId        String?
+  metaTokenEncrypted       String?
+
+  // Exxor (terceiro BR)
+  exxorApiKeyEncrypted     String?
+  exxorNumero              String?
+
+  // Canais de notificação (toggles)
+  emailAtivoNotif          Boolean  @default(true)
+
+  // Institucional
+  cnpj                     String?
+  email                    String?
+  telefone                 String?
+  endereco                 String?
+
+  updatedAt                DateTime @updatedAt
+
+  @@map("config_loja")
+}
+
 enum PresencaStatus {
   NV
   K
@@ -320,4 +545,40 @@ enum PresencaStatus {
   REG
   SM
   ZERO
+}
+
+// ─── Mensageria ───────────────────────────────────────────────────────────────
+
+model NotificacaoLog {
+  id         String            @id @default(cuid())
+  canal      String
+  evento     String
+  status     String
+  memberId   String?
+  member     Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  destinatario String?         // email ou telefone usado
+  assunto    String?
+  corpo      String?           @db.Text
+  erro       String?           @db.Text
+  createdAt  DateTime          @default(now())
+
+  @@index([canal])
+  @@index([evento])
+  @@index([memberId])
+  @@index([createdAt])
+  @@map("notificacao_logs")
+}
+
+model NotificacaoPreferencia {
+  id         String            @id @default(cuid())
+  memberId   String
+  member     Member            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  evento     String
+  canal      String
+  ativo      Boolean           @default(true)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@unique([memberId, evento, canal])
+  @@map("notificacao_preferencias")
 }

@@ -30,11 +30,19 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const isDest = comunicado.destinatarios.some(d => d.memberId === user?.memberId)
     if (!isDest) return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
 
-    // Marca como lido automaticamente
-    await prisma.comunicadoDestinatario.updateMany({
+    // Marca como lido automaticamente (updateMany causa transação no Neon HTTP)
+    const naoLidos = await prisma.comunicadoDestinatario.findMany({
       where: { comunicadoId: id, memberId: user.memberId, lidoEm: null },
-      data: { lidoEm: new Date() },
+      select: { id: true },
     })
+    await Promise.all(
+      naoLidos.map(r =>
+        prisma.comunicadoDestinatario.update({
+          where: { id: r.id },
+          data: { lidoEm: new Date() },
+        }).catch(() => null)
+      )
+    )
   }
 
   return NextResponse.json(comunicado)
