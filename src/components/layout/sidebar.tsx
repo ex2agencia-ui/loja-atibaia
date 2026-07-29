@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User, Briefcase, Newspaper, Bell, Wallet, Settings, Plug, MessageSquare } from "lucide-react"
+import { LayoutDashboard, Users, CalendarDays, BarChart3, Cake, Quote, User, Briefcase, Newspaper, Bell, Wallet, Settings, Plug, MessageSquare, ScanLine } from "lucide-react"
 
 type NavItem = {
   href: string
@@ -21,6 +21,7 @@ const allNav: NavItem[] = [
   { href: "/perfil", label: "Meu Perfil", icon: User },
   { href: "/membros", label: "Irmãos", icon: Users, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
   { href: "/sessoes", label: "Sessões", icon: CalendarDays },
+  { href: "/checkin", label: "Check-in", icon: ScanLine },
   { href: "/aniversarios", label: "Aniversários", icon: Cake, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA", "FINANCEIRO"] },
   { href: "/frases", label: "Frases", icon: Quote, roles: ["ADMIN", "SECRETARIO", "CHANCELARIA"] },
   { href: "/classificados", label: "Classificados", icon: Briefcase },
