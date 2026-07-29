@@ -221,6 +221,8 @@ export default function SessaoPage({ params }: { params: Promise<{ id: string }>
             checkInToken={session.checkInToken}
             checkInAberto={checkInAberto}
             onToggle={setCheckInAbertoOverride}
+            sessaoData={session.data}
+            sessaoTipo={session.tipo}
           />
         )}
       </div>
