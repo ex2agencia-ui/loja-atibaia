@@ -44,8 +44,6 @@ export function QrScanner({ onScan, active }: Props) {
       if (started.current) {
         started.current = false
         scanner.stop().catch(() => {})
-      } else {
-        scanner.clear().catch(() => {})
       }
     }
   }, [active, onScan])
