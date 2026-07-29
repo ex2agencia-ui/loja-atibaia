@@ -16,7 +16,15 @@ Legendas: 🔴 Alta prioridade · 🟡 Média · 🟢 Baixa · ✅ Concluído
 - [x] ✅ Redirect loop após trocar-senha
 - [x] ✅ Badge de comunicados não lidos aparece para admin (roles ADMIN/SECRETARIO/CHANCELARIA retornam 0)
 - [x] ✅ Comunicado `noFeed`: fallback para primeiro membro ativo quando admin não tem `memberId`
-- [ ] 🔴 Testes manuais de regressão pós-deploy (feed, comunicados, trocar-senha)
+- [x] ✅ Aniversários de casamento não apareciam (`parseBRDate` aceitava só `/`, `dataCasamento` usa `-`)
+- [x] ✅ Aniversários de filhos/cônjuge 1 dia adiantados (drift UTC→BRT; corrigido para noon UTC na importação)
+- [x] ✅ `useSession` sem `SessionProvider` na página de check-in — adicionado no dashboard layout
+- [x] ✅ Infinite re-render na página de sessão (select no useQuery chamava setState em loop)
+- [x] ✅ Impressão do QR Code em branco (substituído `window.print()` por janela standalone HTML)
+- [x] ✅ URL do QR Code relativa — `NEXT_PUBLIC_APP_URL || window.location.origin` (não `??`)
+- [x] ✅ `checkInToken`/`checkInAberto` não existiam em produção — migration rodada via script
+- [x] ✅ TypeScript error `NotificacaoCanal` (canal é String no banco, cast necessário)
+- [ ] 🔴 Testes manuais de regressão pós-deploy (feed, comunicados, trocar-senha, checkin)
 
 ### UX Rápidas
 - [ ] 🟡 Confirmação antes de deletar post/comunicado
@@ -42,7 +50,8 @@ Legendas: 🔴 Alta prioridade · 🟡 Média · 🟢 Baixa · ✅ Concluído
 - [ ] 🟢 Resposta a comunicado (thread privado entre membro e admin)
 
 ### Sessões
-- [ ] 🔴 QR Code de presença (membro escaneia na entrada da reunião)
+- [x] ✅ QR Code de presença — geração automática no criar sessão, impressão com data em destaque, scanner in-app com câmera traseira, card de quórum com auto-refresh 10s
+- [ ] 🔴 Contas de usuário para membros — membros precisam de login para usar QR check-in (migração Member → User planejada)
 - [ ] 🟡 Pré-lista de convocação (lista dos esperados antes da sessão)
 - [ ] 🟡 Notificação de sessão próxima (D-3, D-1)
 - [ ] 🟢 Ata digital da sessão (campo rico com exportação PDF)

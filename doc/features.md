@@ -40,6 +40,20 @@ Estado atual: **Julho de 2026**
 - Importação de sessões via CSV
 - Exportação de presenças via CSV
 
+### Check-in por QR Code
+
+- Criação de sessão gera automaticamente `checkInToken` (UUID) e `checkInAberto = false`
+- Página da sessão: modal "QR Code de Check-in" com QR Code grande + botão imprimir + toggle abrir/fechar
+- Impressão: abre janela separada com HTML standalone (QR SVG inline + data da sessão em fonte grande)
+- Toggle chama `PATCH /api/sessoes/[id]` para abrir/fechar sem recarregar a página
+- Card de quórum na página da sessão: conta presenças `P` × total ativos, atualiza a cada 10s
+- Membro escaneia QR com câmera traseira via página `/checkin` (in-app, sem app externo)
+- `src/components/checkin/qr-scanner.tsx`: usa `html5-qrcode` com dynamic import (sem SSR), extrai token de URL completa ou aceita UUID direto
+- Estados do scanner: idle → scanning → confirmando → confirmado / ja_registrado / encerrado / erro
+- API `GET /api/checkin/[token]`: pública, retorna dados da sessão; `POST`: requer auth + `memberId`, faz upsert de `Presenca` com `status: "P"`
+- Admin mantém poder de registrar presenças manualmente (fluxo existente preservado)
+- `SessionProvider` adicionado no layout do dashboard para suportar `useSession()` em client components
+
 ---
 
 ## ✅ Mural Social (Feed)
@@ -89,8 +103,12 @@ Estado atual: **Julho de 2026**
 
 ## ✅ Aniversariantes
 
-- Lista dos aniversários do mês (membros e cônjuges)
-- Filtro por tipo (membro / cônjuge)
+- Lista de aniversários por período: última semana, desde última sessão, personalizado
+- Tipos cobertos: aniversário do irmão, cônjuge, filhos, iniciação, elevação, exaltação, regularização/filiação, instalação, casamento
+- Badges coloridos por tipo
+- Layout responsivo: nome completo visível no mobile (sem truncamento)
+- Correção de timezone: datas de filhos/cônjuge salvas ao meio-dia UTC para evitar drift BRT
+- Casamentos (campo `dataCasamento` em formato `DD-MM-YYYY`): `parseBRDate` aceita `/` e `-` como separador
 
 ---
 

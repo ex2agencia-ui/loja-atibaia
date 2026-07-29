@@ -182,6 +182,8 @@ Reunião/sessão da Loja.
 | tipo | SessionTipo | ORDINARIA / MAGNA / ESPECIAL |
 | fotoUrl | String? | URL Vercel Blob |
 | fotoKey | String? | Pathname Vercel Blob |
+| checkInToken | String? (unique) | UUID gerado na criação — identifica o QR Code |
+| checkInAberto | Boolean | Toggle abrir/fechar check-in por QR (padrão false) |
 | createdAt / updatedAt | DateTime | — |
 
 ---
