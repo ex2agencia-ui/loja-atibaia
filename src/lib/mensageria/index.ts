@@ -70,6 +70,6 @@ async function resolverCanais(memberId: string | undefined, evento: NotificacaoE
     where: { memberId, evento, ativo: true },
   })
 
-  if (prefs.length === 0) return ["EMAIL"]
-  return prefs.map(p => p.canal)
+  if (prefs.length === 0) return ["EMAIL" as NotificacaoCanal]
+  return prefs.map(p => p.canal as NotificacaoCanal)
 }
