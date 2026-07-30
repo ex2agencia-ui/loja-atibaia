@@ -16,34 +16,45 @@ export function QrScanner({ onScan, active }: Props) {
   useEffect(() => {
     if (!active) return
 
-    const scanner = new Html5Qrcode("qr-reader")
-    scannerRef.current = scanner
+    let scanner: InstanceType<typeof Html5Qrcode> | null = null
+    let isMounted = true
 
-    scanner.start(
+    try {
+      scanner = new Html5Qrcode("qr-reader")
+      scannerRef.current = scanner
+    } catch {
+      return
+    }
+
+    const localScanner = scanner
+
+    localScanner.start(
       { facingMode: "environment" },
       { fps: 10, qrbox: { width: 250, height: 250 } },
       (text) => {
-        // Extrai token da URL completa ou aceita token direto
-        const match = text.match(/\/checkin\/([a-f0-9\-]{36})/)
+        const match = text.match(/\/checkin\/([a-f0-9-]{36})/)
         const token = match ? match[1] : text.trim()
-        if (token) {
-          scanner.stop().catch(() => {})
+        if (token && isMounted) {
+          started.current = false
+          localScanner.stop().catch(() => {})
           onScan(token)
         }
       },
-      () => {} // erro de leitura frame a frame — ignorar
+      () => {}
     ).then(() => {
-      started.current = true
+      if (isMounted) started.current = true
     }).catch((e: Error) => {
-      setErro(e.message.includes("Permission") || e.message.includes("permission")
+      if (!isMounted) return
+      setErro(e.message.toLowerCase().includes("permission")
         ? "Permissão de câmera negada. Libere o acesso nas configurações do navegador."
         : "Não foi possível iniciar a câmera.")
     })
 
     return () => {
+      isMounted = false
       if (started.current) {
         started.current = false
-        scanner.stop().catch(() => {})
+        localScanner.stop().catch(() => {})
       }
     }
   }, [active, onScan])
