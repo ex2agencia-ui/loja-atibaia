@@ -35,7 +35,7 @@ export default function CheckinPage() {
 
     // Confirma presença
     const res = await fetch(`/api/checkin/${token}`, { method: "POST" })
-    const data = await res.json()
+    const data = await res.json().catch(() => ({}))
 
     if (data.jaRegistrado) { setEstado("ja_registrado"); return }
     if (res.ok && data.ok) { setEstado("confirmado"); return }
